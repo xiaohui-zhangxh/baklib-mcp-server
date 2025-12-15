@@ -1,0 +1,5175 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "Baklib Max",
+      "version": "1.0.0",
+      "description": ""
+    },
+    "servers": [
+      {
+        "url": "https://open.baklib.com/api/v1",
+        "description": "Api 地址"
+      }
+    ],
+    "tags": [
+      {
+        "name": "部门",
+        "description": "Endpoints to manage GitHub Actions using the REST API."
+      },
+      {
+        "name": "用户",
+        "description": "Activity APIs provide access to notifications, subscriptions, and timelines."
+      },
+      {
+        "name": "团队"
+      },
+      {
+        "name": "雇员"
+      },
+      {
+        "name": "职位类型"
+      },
+      {
+        "name": "职位"
+      },
+      {
+        "name": "供应商"
+      },
+      {
+        "name": "第三方功能集成"
+      },
+      {
+        "name": "成员"
+      },
+      {
+        "name": "站点 cms/wiki"
+      },
+      {
+        "name": "站点页面"
+      },
+      {
+        "name": "站点标签"
+      },
+      {
+        "name": "模版"
+      },
+      {
+        "name": "用户绑定绑定第三方账号"
+      },
+      {
+        "name": "资源库"
+      },
+      {
+        "name": "知识库"
+      },
+      {
+        "name": "知识库文章"
+      }
+    ],
+    "components": {
+      "securitySchemes": {
+        "APIKEY": {
+          "type": "apiKey",
+          "name": "Authorization",
+          "in": "header",
+          "description": "Api Key\n\n API 密钥是一种在调用 API 时提供的令牌. 请将该令牌包含在名为 Authorization 的请求头参数中.\n\n示例: Authorization: access_key:secret_key, \n\naccess_key与secret_key是在组织后台个人中心创建获取",
+          "value": "access_key:secret_key"
+        }
+      },
+      "parameters": {
+        "DamUrlTtl": {
+          "name": "DAM_URL_TTL",
+          "in": "header",
+          "required": false,
+          "description": "资源链接有效期 (秒)",
+          "schema": {
+            "type": "integer",
+            "example": 300
+          }
+        },
+        "DamUrlTtlDelayAfterCache": {
+          "name": "DAM_URL_TTL_DELAY_AFTER_CACHE",
+          "in": "header",
+          "required": false,
+          "description": "DAM_URL_TTL不存在，开启缓存后资源过期时间等于FROM_CACHE_TTL + 缓存后延时有效期 (秒)",
+          "schema": {
+            "type": "integer",
+            "example": 60
+          }
+        },
+        "FromCache": {
+          "name": "FROM_CACHE",
+          "in": "header",
+          "required": false,
+          "description": "缓存标识字符串。用于参与生成缓存 key,修改这个值会刷新,旧的缓存依然存在，过期自动清除, 不传这个值不会使用缓存",
+          "schema": {
+            "type": "string",
+            "example": true
+          }
+        },
+        "FromCacheTtl": {
+          "name": "FROM_CACHE_TTL",
+          "in": "header",
+          "required": false,
+          "description": "缓存结果的有效期（秒）。仅在使用 FROM_CACHE 时生效，指定缓存副本在多少秒后过期并自动刷新。",
+          "schema": {
+            "type": "integer",
+            "example": 120
+          }
+        }
+      },
+      "headers": {
+        "X-Baklib-Cache": {
+          "description": "缓存是否命中（仅当开启缓存时返回）",
+          "schema": {
+            "type": "string",
+            "enum": ["HIT", "MISS"]
+          }
+        },
+        "Age": {
+          "description": "缓存存在时间（秒，仅当开启缓存时返回）",
+          "schema": {
+            "type": "integer",
+            "example": 120
+          }
+        }
+      },
+      "schemas": {
+        "PaginationLinks": {
+          "type": "object",
+          "properties": {
+            "self": {
+              "type": "string",
+              "format": "uri",
+              "description": "当前页"
+            },
+            "first": {
+              "type": "string",
+              "format": "uri",
+              "description": "首页"
+            },
+            "prev": {
+              "nullable": true,
+              "description": "上一页"
+            },
+            "next": {
+              "nullable": true,
+              "description": "下一页"
+            },
+            "last": {
+              "type": "string",
+              "format": "uri",
+              "description": "尾页"
+            }
+          }
+        },
+        "PaginationMeta": {
+          "type": "object",
+          "properties": {
+            "total_count": {
+              "type": "integer",
+              "description": "总数量"
+            },
+            "current_page": {
+              "type": "integer",
+              "description": "当前页"
+            },
+            "page_size": {
+              "type": "integer",
+              "description": "每页显示数量"
+            },
+            "prev_page": {
+              "nullable": true,
+              "description": "上一页"
+            },
+            "next_page": {
+              "nullable": true,
+              "description": "下一页"
+            }
+          }
+        }
+      }
+    },
+    "security": [
+      {
+        "APIKEY": []
+      }
+    ],
+    "paths": {
+      "/organizations/departments": {
+        "parameters": [],
+        "get": {
+          "tags": ["部门"],
+          "summary": "部门列表",
+          "parameters": [
+            {
+              "name": "page[number]",
+              "in": "query",
+              "required": false,
+              "description": "需要显示的页码, 默认1",
+              "example": "6",
+              "schema": {
+                "type": "integer"
+              }
+            },
+            {
+              "name": "page[size]",
+              "in": "query",
+              "required": false,
+              "description": "每页显示数量, 默认10, 最大不能超过50",
+              "example": "5",
+              "schema": {
+                "type": "integer"
+              }
+            },
+            {
+              "name": "parent_id",
+              "in": "query",
+              "required": false,
+              "description": "父部门id",
+              "example": "994393196",
+              "schema": {
+                "type": "integer"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "部门列表",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "utc-millisec"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "attributes": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "description": "部门名称"
+                                },
+                                "created_at": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "description": "创建时间"
+                                },
+                                "updated_at": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "description": "更新时间"
+                                },
+                                "parent_id": {
+                                  "nullable": true,
+                                  "description": "父部门id"
+                                },
+                                "employees_count": {
+                                  "type": "integer",
+                                  "description": "部门员工数量"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "links": {
+                        "$ref": "#/components/schemas/PaginationLinks"
+                      },
+                      "meta": {
+                        "$ref": "#/components/schemas/PaginationMeta"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": ["部门"],
+          "summary": "添加部门",
+          "parameters": [],
+          "responses": {
+            "201": {
+              "description": "添加部门",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "utc-millisec"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "attributes": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "description": "部门名称"
+                              },
+                              "created_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "创建时间"
+                              },
+                              "updated_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "更新时间"
+                              },
+                              "parent_id": {
+                                "type": "integer",
+                                "description": "父部门id"
+                              },
+                              "employees_count": {
+                                "type": "integer",
+                                "description": "部门员工数量"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/organizations/departments/{department_id}": {
+        "parameters": [
+          {
+            "name": "department_id",
+            "in": "path",
+            "required": true,
+            "description": "部门id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "get": {
+          "tags": ["部门"],
+          "summary": "查看部门",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "查看部门",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "utc-millisec"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "attributes": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "description": "部门名称"
+                              },
+                              "created_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "创建时间"
+                              },
+                              "updated_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "更新时间"
+                              },
+                              "parent_id": {
+                                "nullable": true,
+                                "description": "父部门id"
+                              },
+                              "employees_count": {
+                                "type": "integer",
+                                "description": "部门员工数量"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "patch": {
+          "tags": ["部门"],
+          "summary": "修改部门",
+          "parameters": [],
+          "responses": {}
+        },
+        "delete": {
+          "tags": ["部门"],
+          "summary": "删除部门",
+          "parameters": [],
+          "responses": {}
+        }
+      },
+      "/users": {
+        "parameters": [],
+        "get": {
+          "tags": ["用户"],
+          "summary": "用户列表",
+          "parameters": [
+            {
+              "name": "page[number]",
+              "in": "query",
+              "required": false,
+              "description": "需要显示的页码, 默认1",
+              "example": "6",
+              "schema": {
+                "type": "integer"
+              }
+            },
+            {
+              "name": "page[size]",
+              "in": "query",
+              "required": false,
+              "description": "每页显示数量, 默认10, 最大不能超过50",
+              "example": "5",
+              "schema": {
+                "type": "integer"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "用户列表",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "utc-millisec"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "attributes": {
+                              "type": "object",
+                              "properties": {
+                                "organization_id": {
+                                  "type": "integer",
+                                  "description": "组织id"
+                                },
+                                "nick_name": {
+                                  "type": "string",
+                                  "description": "昵称"
+                                },
+                                "email_address": {
+                                  "nullable": true,
+                                  "description": "邮箱"
+                                },
+                                "mobile_phone": {
+                                  "type": "string",
+                                  "format": "utc-millisec",
+                                  "description": "手机号"
+                                },
+                                "password_updated_at": {
+                                  "nullable": true,
+                                  "description": "密码更新时间"
+                                },
+                                "profile": {
+                                  "type": "object",
+                                  "description": "用户信息"
+                                },
+                                "profile_updated_at": {
+                                  "nullable": true,
+                                  "description": "用户信息更新时间"
+                                },
+                                "preferences": {
+                                  "type": "object",
+                                  "properties": {
+                                    "language": {
+                                      "type": "string",
+                                      "description": "语言"
+                                    },
+                                    "time_zone": {
+                                      "type": "string",
+                                      "description": "时区"
+                                    },
+                                    "read_desk_guide": {
+                                      "type": "string",
+                                      "format": "utc-millisec"
+                                    }
+                                  }
+                                },
+                                "locked": {
+                                  "type": "boolean",
+                                  "description": "是否锁定"
+                                },
+                                "locked_at": {
+                                  "nullable": true,
+                                  "description": "锁定时间"
+                                },
+                                "sign_in_count": {
+                                  "type": "integer",
+                                  "description": "登录次数"
+                                },
+                                "current_sign_in_ip": {
+                                  "type": "string",
+                                  "format": "ip-address",
+                                  "description": "当前登录ip"
+                                },
+                                "current_sign_in_at": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "description": "当前登录时间"
+                                },
+                                "cancelled": {
+                                  "type": "boolean",
+                                  "description": "是否取消"
+                                },
+                                "cancelled_at": {
+                                  "nullable": true,
+                                  "description": "取消时间"
+                                },
+                                "created_at": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "description": "创建时间"
+                                },
+                                "updated_at": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "description": "更新时间"
+                                },
+                                "locked_by_id": {
+                                  "nullable": true,
+                                  "description": "谁锁定的"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "links": {
+                        "$ref": "#/components/schemas/PaginationLinks"
+                      },
+                      "meta": {
+                        "$ref": "#/components/schemas/PaginationMeta"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/users/languages": {
+        "parameters": [],
+        "get": {
+          "tags": ["用户"],
+          "summary": "用户可配置的语言数据",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "用户可配置的语言数据",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "en": {
+                        "type": "string",
+                        "description": "英文"
+                      },
+                      "ja": {
+                        "type": "string",
+                        "description": "日文"
+                      },
+                      "ko": {
+                        "type": "string",
+                        "description": "韩文"
+                      },
+                      "zh-CN": {
+                        "type": "string",
+                        "description": "简体中文"
+                      },
+                      "zh-TW": {
+                        "type": "string",
+                        "description": "繁体中文"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/users/time_zones": {
+        "parameters": [],
+        "get": {
+          "tags": ["用户"],
+          "summary": "用户可配置的时区数据",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "用户可配置的时区数据",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "International Date Line West": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "American Samoa": {
+                        "type": "string"
+                      },
+                      "Midway Island": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Hawaii": {
+                        "type": "string"
+                      },
+                      "Alaska": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Pacific Time (US & Canada)": {
+                        "type": "string"
+                      },
+                      "Tijuana": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Arizona": {
+                        "type": "string"
+                      },
+                      "Mazatlan": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Mountain Time (US & Canada)": {
+                        "type": "string"
+                      },
+                      "Central America": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Central Time (US & Canada)": {
+                        "type": "string"
+                      },
+                      "Chihuahua": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Guadalajara": {
+                        "type": "string"
+                      },
+                      "Mexico City": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Monterrey": {
+                        "type": "string"
+                      },
+                      "Saskatchewan": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Bogota": {
+                        "type": "string"
+                      },
+                      "Eastern Time (US & Canada)": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Indiana (East)": {
+                        "type": "string"
+                      },
+                      "Lima": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Quito": {
+                        "type": "string"
+                      },
+                      "Atlantic Time (Canada)": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Caracas": {
+                        "type": "string"
+                      },
+                      "Georgetown": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "La Paz": {
+                        "type": "string"
+                      },
+                      "Puerto Rico": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Santiago": {
+                        "type": "string"
+                      },
+                      "Newfoundland": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Brasilia": {
+                        "type": "string"
+                      },
+                      "Buenos Aires": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Montevideo": {
+                        "type": "string"
+                      },
+                      "Greenland": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Mid-Atlantic": {
+                        "type": "string"
+                      },
+                      "Azores": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Cape Verde Is.": {
+                        "type": "string"
+                      },
+                      "Edinburgh": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Lisbon": {
+                        "type": "string"
+                      },
+                      "London": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Monrovia": {
+                        "type": "string"
+                      },
+                      "UTC": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Amsterdam": {
+                        "type": "string"
+                      },
+                      "Belgrade": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Berlin": {
+                        "type": "string"
+                      },
+                      "Bern": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Bratislava": {
+                        "type": "string"
+                      },
+                      "Brussels": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Budapest": {
+                        "type": "string"
+                      },
+                      "Casablanca": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Copenhagen": {
+                        "type": "string"
+                      },
+                      "Dublin": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Ljubljana": {
+                        "type": "string"
+                      },
+                      "Madrid": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Paris": {
+                        "type": "string"
+                      },
+                      "Prague": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Rome": {
+                        "type": "string"
+                      },
+                      "Sarajevo": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Skopje": {
+                        "type": "string"
+                      },
+                      "Stockholm": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Vienna": {
+                        "type": "string"
+                      },
+                      "Warsaw": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "West Central Africa": {
+                        "type": "string"
+                      },
+                      "Zagreb": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Zurich": {
+                        "type": "string"
+                      },
+                      "Athens": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Bucharest": {
+                        "type": "string"
+                      },
+                      "Cairo": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Harare": {
+                        "type": "string"
+                      },
+                      "Helsinki": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Jerusalem": {
+                        "type": "string"
+                      },
+                      "Kaliningrad": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Kyiv": {
+                        "type": "string"
+                      },
+                      "Pretoria": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Riga": {
+                        "type": "string"
+                      },
+                      "Sofia": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Tallinn": {
+                        "type": "string"
+                      },
+                      "Vilnius": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Baghdad": {
+                        "type": "string"
+                      },
+                      "Istanbul": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Kuwait": {
+                        "type": "string"
+                      },
+                      "Minsk": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Moscow": {
+                        "type": "string"
+                      },
+                      "Nairobi": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Riyadh": {
+                        "type": "string"
+                      },
+                      "St. Petersburg": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Volgograd": {
+                        "type": "string"
+                      },
+                      "Tehran": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Abu Dhabi": {
+                        "type": "string"
+                      },
+                      "Baku": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Muscat": {
+                        "type": "string"
+                      },
+                      "Samara": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Tbilisi": {
+                        "type": "string"
+                      },
+                      "Yerevan": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Kabul": {
+                        "type": "string"
+                      },
+                      "Almaty": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Astana": {
+                        "type": "string"
+                      },
+                      "Ekaterinburg": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Islamabad": {
+                        "type": "string"
+                      },
+                      "Karachi": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Tashkent": {
+                        "type": "string"
+                      },
+                      "Chennai": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Kolkata": {
+                        "type": "string"
+                      },
+                      "Mumbai": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "New Delhi": {
+                        "type": "string"
+                      },
+                      "Sri Jayawardenepura": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Kathmandu": {
+                        "type": "string"
+                      },
+                      "Dhaka": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Urumqi": {
+                        "type": "string"
+                      },
+                      "Rangoon": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Bangkok": {
+                        "type": "string"
+                      },
+                      "Hanoi": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Jakarta": {
+                        "type": "string"
+                      },
+                      "Krasnoyarsk": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Novosibirsk": {
+                        "type": "string"
+                      },
+                      "Beijing": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Chongqing": {
+                        "type": "string"
+                      },
+                      "Hong Kong": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Irkutsk": {
+                        "type": "string"
+                      },
+                      "Kuala Lumpur": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Perth": {
+                        "type": "string"
+                      },
+                      "Singapore": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Taipei": {
+                        "type": "string"
+                      },
+                      "Ulaanbaatar": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Osaka": {
+                        "type": "string"
+                      },
+                      "Sapporo": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Seoul": {
+                        "type": "string"
+                      },
+                      "Tokyo": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Yakutsk": {
+                        "type": "string"
+                      },
+                      "Adelaide": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Darwin": {
+                        "type": "string"
+                      },
+                      "Brisbane": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Canberra": {
+                        "type": "string"
+                      },
+                      "Guam": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Hobart": {
+                        "type": "string"
+                      },
+                      "Melbourne": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Port Moresby": {
+                        "type": "string"
+                      },
+                      "Sydney": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Vladivostok": {
+                        "type": "string"
+                      },
+                      "Magadan": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "New Caledonia": {
+                        "type": "string"
+                      },
+                      "Solomon Is.": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Srednekolymsk": {
+                        "type": "string"
+                      },
+                      "Auckland": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Fiji": {
+                        "type": "string"
+                      },
+                      "Kamchatka": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Marshall Is.": {
+                        "type": "string"
+                      },
+                      "Wellington": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Chatham Is.": {
+                        "type": "string"
+                      },
+                      "Nuku'alofa": {
+                        "type": "string",
+                        "format": "style"
+                      },
+                      "Samoa": {
+                        "type": "string"
+                      },
+                      "Tokelau Is.": {
+                        "type": "string",
+                        "format": "style"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/users/{user_id}": {
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "description": "用户id",
+            "example": "164",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "put": {
+          "tags": ["用户"],
+          "summary": "更新用户数据",
+          "parameters": [],
+          "responses": {}
+        }
+      },
+      "/user": {
+        "parameters": [],
+        "get": {
+          "tags": ["用户"],
+          "summary": "当前用户信息",
+          "parameters": [],
+          "responses": {}
+        }
+      },
+      "/organizations/groups": {
+        "parameters": [],
+        "get": {
+          "tags": ["团队"],
+          "summary": "团队列表",
+          "parameters": [
+            {
+              "name": "page[number]",
+              "in": "query",
+              "required": false,
+              "description": "需要显示的页码, 默认1",
+              "example": "6",
+              "schema": {
+                "type": "integer"
+              }
+            },
+            {
+              "name": "page[size]",
+              "in": "query",
+              "required": false,
+              "description": "每页显示数量, 默认10, 最大不能超过50",
+              "example": "5",
+              "schema": {
+                "type": "integer"
+              }
+            }
+          ],
+          "responses": {}
+        },
+        "post": {
+          "tags": ["团队"],
+          "summary": "添加团队",
+          "parameters": [],
+          "responses": {}
+        }
+      },
+      "/organizations/groups/{group_id}": {
+        "parameters": [
+          {
+            "name": "group_id",
+            "in": "path",
+            "required": true,
+            "description": "团队id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "get": {
+          "tags": ["团队"],
+          "summary": "查看团队",
+          "parameters": [],
+          "responses": {}
+        },
+        "patch": {
+          "tags": ["团队"],
+          "summary": "修改团队",
+          "parameters": [],
+          "responses": {}
+        },
+        "delete": {
+          "tags": ["团队"],
+          "summary": "删除团队",
+          "parameters": [],
+          "responses": {}
+        }
+      },
+      "/organizations/employees": {
+        "parameters": [],
+        "get": {
+          "tags": ["雇员"],
+          "summary": "雇员列表",
+          "parameters": [
+            {
+              "name": "department_id",
+              "in": "query",
+              "required": false,
+              "description": "部门id",
+              "example": "134",
+              "schema": {
+                "type": "integer"
+              }
+            },
+            {
+              "name": "group_id",
+              "in": "query",
+              "required": false,
+              "description": "团队id",
+              "example": "706254879",
+              "schema": {
+                "type": "integer"
+              }
+            },
+            {
+              "name": "page[number]",
+              "in": "query",
+              "required": false,
+              "description": "需要显示的页码, 默认1",
+              "example": "6",
+              "schema": {
+                "type": "integer"
+              }
+            },
+            {
+              "name": "page[size]",
+              "in": "query",
+              "required": false,
+              "description": "每页显示数量, 默认10, 最大不能超过50",
+              "example": "5",
+              "schema": {
+                "type": "integer"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "雇员列表",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "utc-millisec"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "attributes": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "description": "姓名"
+                                },
+                                "gender": {
+                                  "type": "string",
+                                  "description": "性别"
+                                },
+                                "email_address": {
+                                  "nullable": true,
+                                  "description": "邮箱"
+                                },
+                                "mobile_phone": {
+                                  "nullable": true,
+                                  "description": "手机号"
+                                },
+                                "employee_number": {
+                                  "nullable": true,
+                                  "description": "员工编号"
+                                },
+                                "created_at": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "description": "创建时间"
+                                },
+                                "updated_at": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "description": "更新时间"
+                                }
+                              }
+                            },
+                            "relationships": {
+                              "type": "object",
+                              "properties": {
+                                "departments": {
+                                  "type": "object",
+                                  "properties": {
+                                    "data": {
+                                      "type": "array",
+                                      "items": {},
+                                      "description": "所属部门"
+                                    }
+                                  }
+                                },
+                                "positions": {
+                                  "type": "object",
+                                  "properties": {
+                                    "data": {
+                                      "type": "array",
+                                      "items": {},
+                                      "description": "所属职位"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "links": {
+                        "$ref": "#/components/schemas/PaginationLinks"
+                      },
+                      "meta": {
+                        "$ref": "#/components/schemas/PaginationMeta"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": ["雇员"],
+          "summary": "添加雇员",
+          "parameters": [],
+          "responses": {
+            "201": {
+              "description": "添加雇员",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "utc-millisec"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "attributes": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "description": "姓名"
+                              },
+                              "gender": {
+                                "type": "string",
+                                "description": "性别"
+                              },
+                              "email_address": {
+                                "nullable": true,
+                                "description": "邮箱"
+                              },
+                              "mobile_phone": {
+                                "nullable": true,
+                                "description": "手机号"
+                              },
+                              "employee_number": {
+                                "nullable": true,
+                                "description": "员工编号"
+                              },
+                              "created_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "创建时间"
+                              },
+                              "updated_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "更新时间"
+                              }
+                            }
+                          },
+                          "relationships": {
+                            "type": "object",
+                            "properties": {
+                              "departments": {
+                                "type": "object",
+                                "properties": {
+                                  "data": {
+                                    "type": "array",
+                                    "items": {},
+                                    "description": "所属部门"
+                                  }
+                                }
+                              },
+                              "positions": {
+                                "type": "object",
+                                "properties": {
+                                  "data": {
+                                    "type": "array",
+                                    "items": {},
+                                    "description": "所属职位"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/organizations/employees/{employee_id}": {
+        "parameters": [
+          {
+            "name": "employee_id",
+            "in": "path",
+            "required": true,
+            "description": "雇员id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "get": {
+          "tags": ["雇员"],
+          "summary": "查看雇员",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "查看雇员",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "utc-millisec"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "attributes": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "description": "姓名"
+                              },
+                              "gender": {
+                                "type": "string",
+                                "description": "性别"
+                              },
+                              "email_address": {
+                                "nullable": true,
+                                "description": "邮箱"
+                              },
+                              "mobile_phone": {
+                                "nullable": true,
+                                "description": "手机号"
+                              },
+                              "employee_number": {
+                                "nullable": true,
+                                "description": "员工编号"
+                              },
+                              "created_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "创建时间"
+                              },
+                              "updated_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "更新时间"
+                              }
+                            }
+                          },
+                          "relationships": {
+                            "type": "object",
+                            "properties": {
+                              "departments": {
+                                "type": "object",
+                                "properties": {
+                                  "data": {
+                                    "type": "array",
+                                    "items": {},
+                                    "description": "所属部门"
+                                  }
+                                }
+                              },
+                              "positions": {
+                                "type": "object",
+                                "properties": {
+                                  "data": {
+                                    "type": "array",
+                                    "items": {},
+                                    "description": "所属职位"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "patch": {
+          "tags": ["雇员"],
+          "summary": "修改雇员",
+          "parameters": [],
+          "responses": {}
+        },
+        "delete": {
+          "tags": ["雇员"],
+          "summary": "删除雇员",
+          "parameters": [],
+          "responses": {}
+        }
+      },
+      "/organizations/position_types": {
+        "parameters": [],
+        "get": {
+          "tags": ["职位类型"],
+          "summary": "职位类型列表",
+          "parameters": [
+            {
+              "name": "page[number]",
+              "in": "query",
+              "required": false,
+              "description": "需要显示的页码, 默认1",
+              "example": "6",
+              "schema": {
+                "type": "integer"
+              }
+            },
+            {
+              "name": "page[size]",
+              "in": "query",
+              "required": false,
+              "description": "每页显示数量, 默认10, 最大不能超过50",
+              "example": "5",
+              "schema": {
+                "type": "integer"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "职位类型列表",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "utc-millisec"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "attributes": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "description": "职位类型名称"
+                                },
+                                "ordinal": {
+                                  "type": "integer",
+                                  "description": "职位类型排序"
+                                },
+                                "created_at": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "description": "创建时间"
+                                },
+                                "updated_at": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "description": "更新时间"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "links": {
+                        "$ref": "#/components/schemas/PaginationLinks"
+                      },
+                      "meta": {
+                        "$ref": "#/components/schemas/PaginationMeta"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": ["职位类型"],
+          "summary": "添加职位类型",
+          "parameters": [],
+          "responses": {}
+        }
+      },
+      "/organizations/position_types/{position_type_id}": {
+        "parameters": [
+          {
+            "name": "position_type_id",
+            "in": "path",
+            "required": true,
+            "description": "职位类型id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "get": {
+          "tags": ["职位类型"],
+          "summary": "查看职位类型",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "查看职位类型",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "utc-millisec"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "attributes": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "description": "职位类型名称"
+                              },
+                              "ordinal": {
+                                "type": "integer",
+                                "description": "职位类型排序"
+                              },
+                              "created_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "创建时间"
+                              },
+                              "updated_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "更新时间"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "patch": {
+          "tags": ["职位类型"],
+          "summary": "修改职位类型",
+          "parameters": [],
+          "responses": {}
+        },
+        "delete": {
+          "tags": ["职位类型"],
+          "summary": "删除职位类型",
+          "parameters": [],
+          "responses": {}
+        }
+      },
+      "/organizations/positions": {
+        "parameters": [],
+        "get": {
+          "tags": ["职位"],
+          "summary": "职位列表",
+          "parameters": [
+            {
+              "name": "page[number]",
+              "in": "query",
+              "required": false,
+              "description": "需要显示的页码, 默认1",
+              "example": "6",
+              "schema": {
+                "type": "integer"
+              }
+            },
+            {
+              "name": "page[size]",
+              "in": "query",
+              "required": false,
+              "description": "每页显示数量, 默认10, 最大不能超过50",
+              "example": "5",
+              "schema": {
+                "type": "integer"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "职位列表",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "utc-millisec"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "attributes": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "description": "职位名称"
+                                },
+                                "created_at": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "description": "创建时间"
+                                },
+                                "updated_at": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "description": "更新时间"
+                                }
+                              }
+                            },
+                            "relationships": {
+                              "type": "object",
+                              "properties": {
+                                "position_type": {
+                                  "type": "object",
+                                  "properties": {
+                                    "data": {
+                                      "type": "object",
+                                      "properties": {
+                                        "id": {
+                                          "type": "string",
+                                          "format": "utc-millisec",
+                                          "description": "职位类型id"
+                                        },
+                                        "type": {
+                                          "type": "string",
+                                          "description": "职位类型类型"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "links": {
+                        "$ref": "#/components/schemas/PaginationLinks"
+                      },
+                      "meta": {
+                        "$ref": "#/components/schemas/PaginationMeta"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": ["职位"],
+          "summary": "添加职位",
+          "parameters": [],
+          "responses": {}
+        }
+      },
+      "/organizations/positions/{position_id}": {
+        "parameters": [
+          {
+            "name": "position_id",
+            "in": "path",
+            "required": true,
+            "description": "职位id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "get": {
+          "tags": ["职位"],
+          "summary": "查看职位",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "查看职位",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "utc-millisec"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "attributes": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "description": "职位名称"
+                              },
+                              "created_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "创建时间"
+                              },
+                              "updated_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "更新时间"
+                              }
+                            }
+                          },
+                          "relationships": {
+                            "type": "object",
+                            "properties": {
+                              "position_type": {
+                                "type": "object",
+                                "properties": {
+                                  "data": {
+                                    "type": "object",
+                                    "properties": {
+                                      "id": {
+                                        "type": "string",
+                                        "format": "utc-millisec",
+                                        "description": "职位类型id"
+                                      },
+                                      "type": {
+                                        "type": "string",
+                                        "description": "职位类型类型"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "patch": {
+          "tags": ["职位"],
+          "summary": "修改职位",
+          "parameters": [],
+          "responses": {}
+        },
+        "delete": {
+          "tags": ["职位"],
+          "summary": "删除职位",
+          "parameters": [],
+          "responses": {}
+        }
+      },
+      "/agent/organizations": {
+        "parameters": [],
+        "get": {
+          "tags": ["供应商"],
+          "summary": "查询供应商下的组织",
+          "parameters": [
+            {
+              "name": "page[number]",
+              "in": "query",
+              "required": false,
+              "description": "需要显示的页码, 默认1",
+              "example": "1",
+              "schema": {
+                "type": "integer"
+              }
+            },
+            {
+              "name": "page[size]",
+              "in": "query",
+              "required": false,
+              "description": "每页显示数量, 默认10, 最大不能超过50",
+              "example": "10",
+              "schema": {
+                "type": "integer"
+              }
+            }
+          ],
+          "responses": {}
+        },
+        "post": {
+          "tags": ["供应商"],
+          "summary": "组织创建",
+          "parameters": [],
+          "responses": {}
+        }
+      },
+      "/agent/organizations/{organization_id}": {
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "description": "组织id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "get": {
+          "tags": ["供应商"],
+          "summary": "组织详细",
+          "parameters": [],
+          "responses": {}
+        }
+      },
+      "/integrations": {
+        "parameters": [],
+        "get": {
+          "tags": ["第三方功能集成"],
+          "summary": "第三方功能集成/列表",
+          "parameters": [
+            {
+              "name": "page[number]",
+              "in": "query",
+              "required": false,
+              "description": "需要显示的页码, 默认1",
+              "example": "1",
+              "schema": {
+                "type": "integer"
+              }
+            },
+            {
+              "name": "page[size]",
+              "in": "query",
+              "required": false,
+              "description": "每页显示数量, 默认10, 最大不能超过50",
+              "example": "10",
+              "schema": {
+                "type": "integer"
+              }
+            },
+            {
+              "name": "x-organization-id",
+              "in": "header",
+              "required": false,
+              "description": "仅用于在使用供应商token时，传入组织id",
+              "example": "9",
+              "schema": {
+                "type": "integer"
+              }
+            }
+          ],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": ["第三方功能集成"],
+          "summary": "第三方功能集成/添加",
+          "parameters": [
+            {
+              "name": "x-organization-id",
+              "in": "header",
+              "required": false,
+              "description": "仅用于在使用供应商token时，传入组织id",
+              "example": "9",
+              "schema": {
+                "type": "integer"
+              }
+            }
+          ],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/integrations/{integration_id}": {
+        "parameters": [
+          {
+            "name": "integration_id",
+            "in": "path",
+            "required": true,
+            "description": "集成记录id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "get": {
+          "tags": ["第三方功能集成"],
+          "summary": "第三方功能集成/查看集成记录",
+          "parameters": [],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "patch": {
+          "tags": ["第三方功能集成"],
+          "summary": "第三方功能集成/修改",
+          "parameters": [],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": ["第三方功能集成"],
+          "summary": "第三方功能集成/删除",
+          "parameters": [],
+          "responses": {}
+        }
+      },
+      "/integrations/{integration_id}/enabled": {
+        "parameters": [
+          {
+            "name": "integration_id",
+            "in": "path",
+            "required": true,
+            "description": "集成记录id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "put": {
+          "tags": ["第三方功能集成"],
+          "summary": "第三方功能集成/启用",
+          "parameters": [],
+          "responses": {}
+        }
+      },
+      "/integrations/{integration_id}/disabled": {
+        "parameters": [
+          {
+            "name": "integration_id",
+            "in": "path",
+            "required": true,
+            "description": "集成记录id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "put": {
+          "tags": ["第三方功能集成"],
+          "summary": "第三方功能集成/禁用",
+          "parameters": [],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/members": {
+        "parameters": [],
+        "get": {
+          "tags": ["成员"],
+          "summary": "组织成员/列表",
+          "parameters": [
+            {
+              "name": "page[number]",
+              "in": "query",
+              "required": false,
+              "description": "需要显示的页码, 默认1",
+              "example": "1",
+              "schema": {
+                "type": "integer"
+              }
+            },
+            {
+              "name": "page[size]",
+              "in": "query",
+              "required": false,
+              "description": "每页显示数量, 默认10, 最大不能超过50",
+              "example": "10",
+              "schema": {
+                "type": "integer"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "组织成员/列表",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "utc-millisec"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "attributes": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "description": "成员名称"
+                                },
+                                "avatar_url": {
+                                  "nullable": true,
+                                  "description": "成员头像"
+                                },
+                                "created_at": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "description": "创建时间"
+                                },
+                                "updated_at": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "description": "更新时间"
+                                },
+                                "disabled": {
+                                  "type": "boolean",
+                                  "description": "是否禁用"
+                                },
+                                "email_address": {
+                                  "nullable": true,
+                                  "description": "邮箱"
+                                },
+                                "mobile_phone": {
+                                  "type": "string",
+                                  "format": "utc-millisec",
+                                  "description": "手机号"
+                                },
+                                "user_id": {
+                                  "type": "integer",
+                                  "description": "用户id"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "links": {
+                        "$ref": "#/components/schemas/PaginationLinks"
+                      },
+                      "meta": {
+                        "$ref": "#/components/schemas/PaginationMeta"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": ["成员"],
+          "summary": "组织成员/添加",
+          "parameters": [],
+          "responses": {
+            "422": {
+              "description": "组织成员/添加",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "errors": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "source": {
+                              "type": "object",
+                              "properties": {
+                                "pointer": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "detail": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/members/{member_id}": {
+        "parameters": [
+          {
+            "name": "member_id",
+            "in": "path",
+            "required": true,
+            "description": "成员id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "get": {
+          "tags": ["成员"],
+          "summary": "组织成员/查看",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "组织成员/查看",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "utc-millisec"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "attributes": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "description": "成员名称"
+                              },
+                              "avatar_url": {
+                                "nullable": true,
+                                "description": "成员头像"
+                              },
+                              "created_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "创建时间"
+                              },
+                              "updated_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "更新时间"
+                              },
+                              "disabled": {
+                                "type": "boolean",
+                                "description": "是否禁用"
+                              },
+                              "email_address": {
+                                "nullable": true,
+                                "description": "邮箱"
+                              },
+                              "mobile_phone": {
+                                "type": "string",
+                                "format": "utc-millisec",
+                                "description": "手机号"
+                              },
+                              "user_id": {
+                                "type": "integer",
+                                "description": "用户id"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "patch": {
+          "tags": ["成员"],
+          "summary": "组织成员/修改",
+          "parameters": [],
+          "responses": {}
+        }
+      },
+      "/members/{member_id}/enable": {
+        "parameters": [
+          {
+            "name": "member_id",
+            "in": "path",
+            "required": true,
+            "description": "成员id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "put": {
+          "tags": ["成员"],
+          "summary": "组织成员/启用",
+          "parameters": [],
+          "responses": {}
+        }
+      },
+      "/members/{member_id}/disable": {
+        "parameters": [
+          {
+            "name": "member_id",
+            "in": "path",
+            "required": true,
+            "description": "成员id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "put": {
+          "tags": ["成员"],
+          "summary": "组织成员/禁用",
+          "parameters": [],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/sites/{site_id}/pages": {
+        "parameters": [
+          {
+            "name": "site_id",
+            "in": "path",
+            "required": true,
+            "description": "站点id",
+            "example": "143",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/DamUrlTtl"
+          },
+          {
+            "$ref": "#/components/parameters/DamUrlTtlDelayAfterCache"
+          },
+          {
+            "$ref": "#/components/parameters/FromCache"
+          },
+          {
+            "$ref": "#/components/parameters/FromCacheTtl"
+          }
+        ],
+        "get": {
+          "tags": ["站点页面"],
+          "summary": "站点页面/列表",
+          "parameters": [
+            {
+              "name": "page[number]",
+              "in": "query",
+              "required": false,
+              "description": "需要显示的页码, 默认1",
+              "example": "2",
+              "schema": {
+                "type": "integer"
+              }
+            },
+            {
+              "name": "page[size]",
+              "in": "query",
+              "required": false,
+              "description": "每页显示数量, 默认10, 最大不能超过50",
+              "example": "10",
+              "schema": {
+                "type": "integer"
+              }
+            },
+            {
+              "name": "parent_id",
+              "in": "query",
+              "required": false,
+              "description": "父页面id",
+              "example": "338",
+              "schema": {
+                "type": "integer"
+              }
+            },
+            {
+              "name": "deleted",
+              "in": "query",
+              "required": false,
+              "description": "是否删除",
+              "example": "true",
+              "schema": {
+                "type": "boolean"
+              }
+            },
+            {
+              "name": "calculated_link_text",
+              "in": "query",
+              "required": false,
+              "description": "标题搜索",
+              "example": "首页",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "full_path",
+              "in": "query",
+              "required": false,
+              "description": "路径",
+              "example": "a",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "full_path_in",
+              "in": "query",
+              "required": false,
+              "description": "路径批量查询默认按照传递的full_path返回",
+              "example": "/growth-hacker/126, /history, /services/2b97",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "published",
+              "in": "query",
+              "required": false,
+              "description": "是否发布",
+              "example": "false",
+              "schema": {
+                "type": "boolean"
+              }
+            },
+            {
+              "name": "tags",
+              "in": "query",
+              "required": false,
+              "description": "关联标签",
+              "example": "A",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "created_by_id",
+              "in": "query",
+              "required": false,
+              "description": "创建用户id",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "edited_by_id",
+              "in": "query",
+              "required": false,
+              "description": "编辑用户id",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "sort_by",
+              "in": "query",
+              "required": false,
+              "description": "排序值",
+              "example": "created_at asc",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "keywords",
+              "in": "query",
+              "required": false,
+              "example": "测试",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "fields[page]",
+              "in": "query",
+              "required": false,
+              "description": "指定返回字段, 需要模版变量需要传递include_details=true",
+              "example": "full_path, slug ,settings.thumb_url,template_variables.title",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "include_details",
+              "in": "query",
+              "required": false,
+              "description": "是否包含模版变量详情",
+              "example": "true",
+              "schema": {
+                "type": "boolean"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "站点页面/列表",
+              "headers": {
+                "X-Baklib-Cache": { "$ref": "#/components/headers/X-Baklib-Cache" },
+                "Age": { "$ref": "#/components/headers/Age" }
+              },
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "color"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "attributes": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "description": "页面名称"
+                                },
+                                "site_id": {
+                                  "type": "integer",
+                                  "description": "站点id"
+                                },
+                                "parent_id": {
+                                  "type": "integer",
+                                  "description": "父页面id"
+                                },
+                                "visits_count": {
+                                  "type": "integer",
+                                  "description": "访问量"
+                                },
+                                "slug": {
+                                  "type": "string",
+                                  "description": "页面路径"
+                                },
+                                "full_path": {
+                                  "type": "string",
+                                  "description": "页面路径"
+                                },
+                                "published": {
+                                  "type": "boolean",
+                                  "description": "是否发布"
+                                },
+                                "published_at": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "description": "发布时间"
+                                },
+                                "position": {
+                                  "type": "integer",
+                                  "description": "排序"
+                                },
+                                "calculated_link_text": {
+                                  "type": "string",
+                                  "description": "标题搜索"
+                                },
+                                "hidden_from_list": {
+                                  "type": "boolean",
+                                  "description": "是否隐藏列表"
+                                },
+                                "hidden_from_nav_menu": {
+                                  "type": "boolean",
+                                  "description": "是否隐藏导航菜单"
+                                },
+                                "template_name": {
+                                  "type": "string",
+                                  "description": "模板名称"
+                                },
+                                "deleted": {
+                                  "type": "boolean",
+                                  "description": "是否删除"
+                                },
+                                "created_at": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "description": "创建时间"
+                                },
+                                "created_by_id": {
+                                  "type": "integer",
+                                  "description": "创建用户id"
+                                },
+                                "updated_at": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "description": "更新时间"
+                                },
+                                "settings": {
+                                  "type": "object",
+                                  "description": "转换后的模版变量",
+                                  "properties": {
+                                    "title": {
+                                      "type": "string"
+                                    },
+                                    "description": {
+                                      "nullable": true
+                                    },
+                                    "thumb_image_url": {
+                                      "nullable": true
+                                    },
+                                    "tags": {
+                                      "type": "array",
+                                      "items": {}
+                                    },
+                                    "content": {
+                                      "type": "string"
+                                    }
+                                  }
+                                },
+                                "template_variables": {
+                                  "type": "object",
+                                  "description": "模版变量，未转换前的模版变量",
+                                  "properties": {
+                                    "title": {
+                                      "type": "string"
+                                    },
+                                    "content": {
+                                      "nullable": true
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "links": {
+                        "$ref": "#/components/schemas/PaginationLinks"
+                      },
+                      "meta": {
+                        "$ref": "#/components/schemas/PaginationMeta"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": ["站点页面"],
+          "summary": "站点页面/添加",
+          "parameters": [],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "attributes": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string",
+                              "description": "标题",
+                              "example": "国内外众创孵化平台汇总"
+                            },
+                            "parent_id": {
+                              "type": "string",
+                              "description": "父页面ID",
+                              "example": ""
+                            },
+                            "template_variables": {
+                              "type": "object",
+                              "description": "模版变量，根据模版需求不同而不同",
+                              "example": {
+                                "content": "<div class=\"container\">\\n</div>"
+                              }
+                            },
+                            "template_name": {
+                              "type": "string",
+                              "description": "模版类型，只能切换同一类型",
+                              "example": "page"
+                            },
+                            "template_style": {
+                              "type": "string",
+                              "description": "模版样式",
+                              "example": ""
+                            },
+                            "published": {
+                              "type": "boolean",
+                              "description": "是否发布",
+                              "example": false
+                            },
+                            "published_at": {
+                              "type": "string",
+                              "format": "date-time",
+                              "description": "发布时间",
+                              "example": "2022-05-21 08:00"
+                            },
+                            "position": {
+                              "type": "integer",
+                              "description": "排序值",
+                              "example": 6
+                            },
+                            "seo_title": {
+                              "type": "string",
+                              "description": "SEO 标题",
+                              "example": "seo_title"
+                            },
+                            "seo_keywords": {
+                              "type": "string",
+                              "description": "SEO 关键字",
+                              "example": "seo_keywords"
+                            },
+                            "seo_description": {
+                              "type": "string",
+                              "description": "SEO 描述",
+                              "example": "seo_description"
+                            },
+                            "hidden_from_list": {
+                              "type": "boolean",
+                              "description": "是否在列表中隐藏",
+                              "example": true
+                            },
+                            "hidden_from_nav_menu": {
+                              "type": "boolean",
+                              "description": "是否在导航菜单中隐藏",
+                              "example": false
+                            },
+                            "access_enabled": {
+                              "type": "boolean",
+                              "description": "是否启用访问控制",
+                              "example": true
+                            }
+                          },
+                          "required": ["name", "template_name"]
+                        }
+                      },
+                      "required": ["attributes"]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/sites/{site_id}/pages/{page_id}": {
+        "parameters": [
+          {
+            "name": "site_id",
+            "in": "path",
+            "required": true,
+            "description": "站点id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page_id",
+            "in": "path",
+            "required": true,
+            "description": "页面id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "get": {
+          "tags": ["站点页面"],
+          "summary": "站点页面/查看",
+          "parameters": [
+            {
+              "name": "full_path",
+              "in": "query",
+              "required": false,
+              "description": "通过路径查询或者页面id查询",
+              "example": "/f1ed5/52fce/61099",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "站点页面/查看",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "color"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "attributes": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "description": "页面名称"
+                              },
+                              "site_id": {
+                                "type": "integer",
+                                "description": "站点id"
+                              },
+                              "parent_id": {
+                                "type": "integer",
+                                "description": "父页面id"
+                              },
+                              "visits_count": {
+                                "type": "integer",
+                                "description": "访问量"
+                              },
+                              "slug": {
+                                "type": "string",
+                                "description": "页面路径"
+                              },
+                              "full_path": {
+                                "type": "string",
+                                "description": "页面路径"
+                              },
+                              "published": {
+                                "type": "boolean",
+                                "description": "是否发布"
+                              },
+                              "published_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "发布时间"
+                              },
+                              "position": {
+                                "type": "integer",
+                                "description": "排序"
+                              },
+                              "template_name": {
+                                "type": "string",
+                                "description": "模板名称"
+                              },
+                              "template_style": {
+                                "nullable": true,
+                                "description": "模板样式"
+                              },
+                              "settings": {
+                                "type": "object",
+                                "description": "转换后的模版变量",
+                                "properties": {
+                                  "title": {
+                                    "type": "string"
+                                  },
+                                  "description": {
+                                    "nullable": true
+                                  },
+                                  "thumb_image_url": {
+                                    "nullable": true
+                                  },
+                                  "tags": {
+                                    "type": "array",
+                                    "items": {}
+                                  },
+                                  "content": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "template_variables": {
+                                "type": "object",
+                                "description": "模版变量，未转换前的模版变量",
+                                "properties": {
+                                  "title": {
+                                    "type": "string"
+                                  },
+                                  "content": {
+                                    "nullable": true
+                                  }
+                                }
+                              },
+                              "url": {
+                                "type": "string",
+                                "format": "uri",
+                                "description": "页面url"
+                              },
+                              "external_url": {
+                                "nullable": true,
+                                "description": "外部url"
+                              },
+                              "seo_title": {
+                                "nullable": true,
+                                "description": "seo标题"
+                              },
+                              "seo_keywords": {
+                                "nullable": true,
+                                "description": "seo关键词"
+                              },
+                              "seo_description": {
+                                "nullable": true,
+                                "description": "seo描述"
+                              },
+                              "hidden_from_list": {
+                                "type": "boolean",
+                                "description": "是否隐藏列表"
+                              },
+                              "hidden_from_nav_menu": {
+                                "type": "boolean",
+                                "description": "是否隐藏导航菜单"
+                              },
+                              "list_when_access_enabled": {
+                                "type": "boolean",
+                                "description": "是否在访问启用时显示"
+                              },
+                              "calculated_link_text": {
+                                "type": "string",
+                                "description": "标题搜索"
+                              },
+                              "access_enabled": {
+                                "type": "boolean",
+                                "description": "是否开启访问授权"
+                              },
+                              "published_children_count": {
+                                "type": "integer",
+                                "description": "已发布下一级子页面数量"
+                              },
+                              "published_descendants_count": {
+                                "type": "integer",
+                                "description": "已发布所有子孙页面数量"
+                              },
+                              "deleted": {
+                                "type": "boolean",
+                                "description": "是否删除"
+                              },
+                              "deleted_at": {
+                                "nullable": true,
+                                "description": "删除时间"
+                              },
+                              "deleted_by_id": {
+                                "nullable": true,
+                                "description": "删除者id"
+                              },
+                              "edited_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "编辑时间"
+                              },
+                              "edited_by_id": {
+                                "type": "integer",
+                                "description": "编辑者id"
+                              },
+                              "created_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "创建时间"
+                              },
+                              "created_by_id": {
+                                "type": "integer",
+                                "description": "创建者id"
+                              },
+                              "updated_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "更新时间"
+                              },
+                              "sub_templates": {
+                                "type": "array",
+                                "items": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "description": "子模板"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "patch": {
+          "tags": ["站点页面"],
+          "summary": "站点页面/更新",
+          "parameters": [
+            {
+              "name": "full_path",
+              "in": "query",
+              "required": false,
+              "description": "通过路径查询或者页面id查询",
+              "example": "/f1ed5/52fce/61099",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": ["站点页面"],
+          "summary": "站点页面/删除",
+          "parameters": [
+            {
+              "name": "full_path",
+              "in": "query",
+              "required": false,
+              "description": "通过路径查询或者页面id查询",
+              "example": "/f1ed5/52fce/61099",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/sites/{site_id}/pages/smart_create": {
+        "parameters": [
+          {
+            "name": "site_id",
+            "in": "path",
+            "required": true,
+            "description": "站点id",
+            "example": "143",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "post": {
+          "tags": ["站点页面"],
+          "summary": "站点页面/智能添加",
+          "parameters": [],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "attributes": {
+                          "type": "object",
+                          "properties": {
+                            "content": {
+                              "type": "string"
+                            },
+                            "title": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/sites/{site_id}/tags": {
+        "parameters": [
+          {
+            "name": "site_id",
+            "in": "path",
+            "required": true,
+            "description": "站点id",
+            "example": "391",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "get": {
+          "summary": "站点标签/列表",
+          "tags": ["站点标签"],
+          "parameters": [
+            {
+              "name": "page[number]",
+              "in": "query",
+              "required": false,
+              "description": "需要显示的页码, 默认1",
+              "example": "2",
+              "schema": {
+                "type": "integer"
+              }
+            },
+            {
+              "name": "page[size]",
+              "in": "query",
+              "required": false,
+              "description": "每页显示数量, 默认10, 最大不能超过50",
+              "example": "10",
+              "schema": {
+                "type": "integer"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "站点标签/列表",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "color"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "attributes": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "description": "标签名称"
+                                },
+                                "bg_color": {
+                                  "type": "string",
+                                  "format": "color",
+                                  "description": "标签背景颜色"
+                                },
+                                "created_at": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "description": "创建时间"
+                                },
+                                "updated_at": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "description": "更新时间"
+                                },
+                                "referenced": {
+                                  "type": "boolean",
+                                  "description": "是否是引用标签，引用标签不可修改"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "summary": "站点标签/添加",
+          "tags": ["站点标签"],
+          "parameters": [],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/sites/{site_id}/tags/{tag_id}": {
+        "parameters": [
+          {
+            "name": "site_id",
+            "in": "path",
+            "required": true,
+            "description": "站点id",
+            "example": "391",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "tag_id",
+            "in": "path",
+            "required": true,
+            "description": "标签id",
+            "example": "394",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "get": {
+          "tags": ["站点标签"],
+          "summary": "站点标签/查看",
+          "parameters": [
+            {
+              "name": "name",
+              "in": "query",
+              "required": false,
+              "description": "通过标签名称或者id查询",
+              "example": "国内外众创孵化平台汇总",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+              "200": {
+                "description": "站点标签/查看",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "color"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "attributes": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string"
+                                },
+                                "bg_color": {
+                                  "type": "string",
+                                  "format": "color"
+                                },
+                                "created_at": {
+                                  "type": "string",
+                                  "format": "date-time"
+                                },
+                                "updated_at": {
+                                  "type": "string",
+                                  "format": "date-time"
+                                },
+                                "referenced": {
+                                  "type": "boolean"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+        "delete": {
+          "tags": ["站点标签"],
+          "summary": "站点标签/删除",
+          "parameters": [
+            {
+              "name": "name",
+              "in": "query",
+              "required": false,
+              "description": "通过标签名称或者id查询",
+              "example": "国内外众创孵化平台汇总2",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {}
+        }
+      },
+      "/sites": {
+        "parameters": [],
+        "get": {
+          "tags": ["站点 cms/wiki"],
+          "summary": "组织站点/列表",
+          "parameters": [
+            {
+              "name": "page[number]",
+              "in": "query",
+              "required": false,
+              "description": "需要显示的页码, 默认1",
+              "example": "1",
+              "schema": {
+                "type": "integer"
+              }
+            },
+            {
+              "name": "page[size]",
+              "in": "query",
+              "required": false,
+              "description": "每页显示数量, 默认10, 最大不能超过50",
+              "example": "10",
+              "schema": {
+                "type": "integer"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "组织站点/列表",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "utc-millisec"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "attributes": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "format": "color",
+                                  "description": "站点名称"
+                                },
+                                "portal_url": {
+                                  "type": "string",
+                                  "format": "uri",
+                                  "description": "站点url"
+                                },
+                                "language": {
+                                  "type": "string",
+                                  "description": "站点语言"
+                                },
+                                "time_zone": {
+                                  "type": "string",
+                                  "description": "时区"
+                                },
+                                "access_enabled": {
+                                  "type": "boolean",
+                                  "description": "是否开启访问授权"
+                                },
+                                "created_at": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "description": "创建时间"
+                                },
+                                "updated_at": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "description": "更新时间"
+                                },
+                                "kind": {
+                                  "type": "string",
+                                  "description": "站点类型"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "links": {
+                        "$ref": "#/components/schemas/PaginationLinks"
+                      },
+                      "meta": {
+                        "$ref": "#/components/schemas/PaginationMeta"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": ["站点 cms/wiki"],
+          "summary": "组织站点/添加",
+          "parameters": [],
+          "responses": {}
+        }
+      },
+      "/sites/{site_id}": {
+        "parameters": [
+          {
+            "name": "site_id",
+            "in": "path",
+            "required": true,
+            "description": "站点id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "get": {
+          "tags": ["站点 cms/wiki"],
+          "summary": "组织站点/查看",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "组织站点/查看",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "utc-millisec"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "attributes": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "format": "color",
+                                "description": "站点名称"
+                              },
+                              "portal_url": {
+                                "type": "string",
+                                "format": "uri",
+                                "description": "站点url"
+                              },
+                              "language": {
+                                "type": "string",
+                                "description": "站点语言"
+                              },
+                              "time_zone": {
+                                "type": "string",
+                                "description": "时区"
+                              },
+                              "access_enabled": {
+                                "type": "boolean",
+                                "description": "是否开启访问授权"
+                              },
+                              "created_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "创建时间"
+                              },
+                              "updated_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "更新时间"
+                              },
+                              "kind": {
+                                "type": "string",
+                                "description": "站点类型"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "patch": {
+          "tags": ["站点 cms/wiki"],
+          "summary": "组织站点/更新",
+          "parameters": [],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/themes": {
+        "parameters": [],
+        "get": {
+          "tags": ["模版"],
+          "summary": "模版列表-组织模版与公共模版",
+          "parameters": [
+            {
+              "name": "from",
+              "in": "query",
+              "required": false,
+              "description": "org: 组织所有的模版； public：公共模版",
+              "example": "public",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "scope",
+              "in": "query",
+              "required": false,
+              "description": "模版创建应用的类型: cms、wiki",
+              "example": "cms",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "page[number]",
+              "in": "query",
+              "required": false,
+              "description": "需要显示的页码, 默认1",
+              "example": "1",
+              "schema": {
+                "type": "integer"
+              }
+            },
+            {
+              "name": "page[size]",
+              "in": "query",
+              "required": false,
+              "description": "每页显示数量, 默认10, 最大不能超过50",
+              "example": "10",
+              "schema": {
+                "type": "integer"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "模版列表-组织模版与公共模版",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "utc-millisec"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "attributes": {
+                              "type": "object",
+                              "properties": {
+                                "updated_at": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "description": "更新时间"
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "模版名称"
+                                },
+                                "scope": {
+                                  "type": "string",
+                                  "description": "模版创建应用的类型"
+                                },
+                                "created_at": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "description": "创建时间"
+                                },
+                                "public": {
+                                  "type": "boolean",
+                                  "description": "是否为公共模版"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "links": {
+                        "type": "object",
+                        "properties": {
+                          "self": {
+                            "type": "string",
+                            "format": "uri"
+                          },
+                          "first": {
+                            "type": "string",
+                            "format": "uri"
+                          },
+                          "prev": {
+                            "nullable": true
+                          },
+                          "next": {
+                            "type": "string",
+                            "format": "uri"
+                          },
+                          "last": {
+                            "type": "string",
+                            "format": "uri"
+                          }
+                        }
+                      },
+                      "meta": {
+                        "type": "object",
+                        "properties": {
+                          "total_count": {
+                            "type": "integer"
+                          },
+                          "current_page": {
+                            "type": "integer"
+                          },
+                          "page_size": {
+                            "type": "integer"
+                          },
+                          "prev_page": {
+                            "nullable": true
+                          },
+                          "next_page": {
+                            "type": "integer"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/users/connects": {
+        "parameters": [],
+        "get": {
+          "tags": ["用户绑定绑定第三方账号"],
+          "summary": "组织所有用户的账号绑定",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "组织所有用户的账号绑定",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "type": "array",
+                        "items": {}
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/users/{user_id}/connects": {
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "description": "用户id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "get": {
+          "tags": ["用户绑定绑定第三方账号"],
+          "summary": "指定查询某用户在其组织内的账号绑定数据",
+          "parameters": [],
+          "responses": {}
+        },
+        "post": {
+          "tags": ["用户绑定绑定第三方账号"],
+          "summary": "创建用户绑定记录",
+          "parameters": [],
+          "responses": {}
+        }
+      },
+      "/users/{user_id}/connects/{id}": {
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "用户id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "delete": {
+          "tags": ["用户绑定绑定第三方账号"],
+          "summary": "删除用户绑定记录",
+          "parameters": [],
+          "responses": {}
+        }
+      },
+      "/dam/entities": {
+        "parameters": [],
+        "get": {
+          "tags": ["资源库"],
+          "summary": "资源库列表",
+          "parameters": [
+            {
+              "name": "type",
+              "in": "query",
+              "required": false,
+              "description": "资源类型",
+              "example": "link",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "name",
+              "in": "query",
+              "required": false,
+              "description": "资源名称",
+              "example": "baklib",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "deleted",
+              "in": "query",
+              "required": false,
+              "description": "是否删除",
+              "example": "true",
+              "schema": {
+                "type": "boolean"
+              }
+            },
+            {
+              "name": "creation_date_range",
+              "in": "query",
+              "required": false,
+              "description": "创建时间范围",
+              "example": "2024-05-01",
+              "schema": {
+                "type": "integer"
+              }
+            },
+            {
+              "name": "sort_by",
+              "in": "query",
+              "required": false,
+              "description": "排序",
+              "example": "updated desc",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "collection_ids",
+              "in": "query",
+              "required": false,
+              "description": "数组id",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "tag_ids",
+              "in": "query",
+              "required": false,
+              "description": "标签id",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "created_by_id",
+              "in": "query",
+              "required": false,
+              "description": "创建者id",
+              "example": "5",
+              "schema": {
+                "type": "integer"
+              }
+            },
+            {
+              "name": "page[number]",
+              "in": "query",
+              "required": false,
+              "description": "需要显示的页码, 默认1",
+              "example": "1",
+              "schema": {
+                "type": "integer"
+              }
+            },
+            {
+              "name": "page[size]",
+              "in": "query",
+              "required": false,
+              "description": "每页显示数量, 默认10, 最大不能超过50",
+              "example": "10",
+              "schema": {
+                "type": "integer"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "资源库列表",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "color"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "attributes": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "description": "资源名称"
+                                },
+                                "description": {
+                                  "nullable": true,
+                                  "description": "资源描述"
+                                },
+                                "deleted": {
+                                  "type": "boolean",
+                                  "description": "是否删除"
+                                },
+                                "created_at": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "description": "创建时间"
+                                },
+                                "created_by_id": {
+                                  "type": "integer",
+                                  "description": "创建者id"
+                                },
+                                "updated_at": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "description": "更新时间"
+                                },
+                                "main_version": {
+                                  "type": "boolean",
+                                  "description": "是否为主版本"
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "description": "资源类型"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "links": {
+                        "type": "object",
+                        "properties": {
+                          "self": {
+                            "type": "string",
+                            "format": "uri",
+                            "description": "当前页"
+                          },
+                          "first": {
+                            "type": "string",
+                            "format": "uri",
+                            "description": "首页"
+                          },
+                          "prev": {
+                            "nullable": true,
+                            "description": "上一页"
+                          },
+                          "next": {
+                            "type": "string",
+                            "format": "uri",
+                            "description": "下一页"
+                          },
+                          "last": {
+                            "type": "string",
+                            "format": "uri",
+                            "description": "尾页"
+                          }
+                        }
+                      },
+                      "meta": {
+                        "type": "object",
+                        "properties": {
+                          "total_count": {
+                            "type": "integer",
+                            "description": "总数量"
+                          },
+                          "current_page": {
+                            "type": "integer",
+                            "description": "当前页"
+                          },
+                          "page_size": {
+                            "type": "integer",
+                            "description": "每页显示数量"
+                          },
+                          "prev_page": {
+                            "nullable": true,
+                            "description": "上一页"
+                          },
+                          "next_page": {
+                            "type": "integer",
+                            "description": "下一页"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/dam/entities/{entity_id}": {
+        "parameters": [
+          {
+            "name": "entity_id",
+            "in": "path",
+            "required": true,
+            "description": "资源id",
+            "example": "783",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "get": {
+          "tags": ["资源库"],
+          "summary": "资源库/查看",
+          "parameters": [
+            {
+              "name": "include_signed_id",
+              "in": "query",
+              "required": false,
+              "example": "true",
+              "schema": {
+                "type": "boolean"
+              }
+            },
+            {
+              "name": "purpose",
+              "in": "query",
+              "required": false,
+              "example": "dynamic_form",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "资源库/查看",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "color"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "attributes": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "description": "资源名称"
+                              },
+                              "description": {
+                                "nullable": true,
+                                "description": "资源描述"
+                              },
+                              "main_version": {
+                                "type": "boolean",
+                                "description": "是否为主版本"
+                              },
+                              "type": {
+                                "type": "string",
+                                "description": "资源类型"
+                              },
+                              "url": {
+                                "type": "string",
+                                "format": "uri",
+                                "description": "资源url"
+                              },
+                              "byte_size": {
+                                "type": "integer",
+                                "description": "资源大小"
+                              },
+                              "metadata": {
+                                "type": "object",
+                                "properties": {
+                                  "identified": {
+                                    "type": "boolean",
+                                    "description": "是否识别"
+                                  },
+                                  "filename": {
+                                    "type": "string",
+                                    "description": "文件名"
+                                  },
+                                  "content_type": {
+                                    "type": "string",
+                                    "description": "文件类型"
+                                  }
+                                }
+                              },
+                              "deleted": {
+                                "type": "boolean",
+                                "description": "是否删除"
+                              },
+                              "deleted_at": {
+                                "nullable": true,
+                                "description": "删除时间"
+                              },
+                              "deleted_by_id": {
+                                "nullable": true,
+                                "description": "删除者id"
+                              },
+                              "created_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "创建时间"
+                              },
+                              "created_by_id": {
+                                "type": "integer",
+                                "description": "创建者id"
+                              },
+                              "updated_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "更新时间"
+                              },
+                              "signed_id": {
+                                "type": "string",
+                                "description": "签名id"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": ["资源库"],
+          "summary": "资源库/删除",
+          "parameters": [],
+          "responses": {}
+        }
+      },
+      "/dam/fragments": {
+        "parameters": [],
+        "post": {
+          "tags": ["资源库"],
+          "summary": "资源库/添加知识片段",
+          "parameters": [],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+        "/dam/entities/{entity_id}/urls": {
+        "parameters": [
+          {
+            "name": "entity_id",
+            "in": "path",
+            "required": true,
+            "example": "eyJfcmFpbHMiOnsiZGF0YSI6eyJpZCI6MTAzODI1LCJ0aW1lc3RhbXAiOiIyMDI1LTA0LTI3IDExOjM4OjQzICswODAwIn0sInB1ciI6ImRhbS9lbnRpdHkvb3JnYW5pemF0aW9uX3c2M2M4a3YifX0--fbd9b54645fe380ad1ca39492e1162843196ddb0c7db54a1ff482370a50c6be0",
+            "schema": {
+              "type": "string"
+            },
+            "description": "资源id 或者嵌入内容中的bke-dam-id"
+          }
+        ],
+        "post": {
+          "tags": ["资源库"],
+          "summary": "资源库/指定过期时间获取资源url",
+          "parameters": [
+            {
+              "name": "purpose",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "expires_in",
+              "in": "query",
+              "required": false,
+              "description": "多少秒过期",
+              "example": "3600",
+              "schema": {
+                "type": "integer"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "资源库/指定过期时间获取资源url",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "url": {
+                        "type": "string",
+                        "format": "uri"
+                      },
+                      "expires_at": {
+                        "nullable": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/dam/fragments/{entity_id}": {
+        "parameters": [
+          {
+            "name": "entity_id",
+            "in": "path",
+            "required": true,
+            "description": "资源id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "patch": {
+          "tags": ["资源库"],
+          "summary": "资源库/更新知识片段",
+          "parameters": [],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/dam/links": {
+        "parameters": [],
+        "post": {
+          "tags": ["资源库"],
+          "summary": "资源库/添加网址",
+          "parameters": [],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/dam/links/{entity_id}": {
+        "parameters": [
+          {
+            "name": "entity_id",
+            "in": "path",
+            "required": true,
+            "description": "资源id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "patch": {
+          "tags": ["资源库"],
+          "summary": "资源库/更新网址",
+          "parameters": [],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/dam/files": {
+        "parameters": [],
+        "post": {
+          "tags": ["资源库"],
+          "summary": "资源库/添加文件",
+          "parameters": [],
+          "responses": {}
+        }
+      },
+      "/dam/files/{entity_id}": {
+        "parameters": [
+          {
+            "name": "entity_id",
+            "in": "path",
+            "required": true,
+            "description": "资源id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "patch": {
+          "tags": ["资源库"],
+          "summary": "资源库/更新文件",
+          "parameters": [],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/dam/collections": {
+        "parameters": [],
+        "get": {
+          "tags": ["资源库"],
+          "summary": "资源库集合列表",
+          "parameters": [
+            {
+              "name": "page[number]",
+              "in": "query",
+              "required": false,
+              "description": "需要显示的页码, 默认1",
+              "example": "1",
+              "schema": {
+                "type": "integer"
+              }
+            },
+            {
+              "name": "page[size]",
+              "in": "query",
+              "required": false,
+              "description": "每页显示数量, 默认10, 最大不能超过50",
+              "example": "10",
+              "schema": {
+                "type": "integer"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "资源库集合列表",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "utc-millisec"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "attributes": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "nullable": true,
+                                  "description": "集合名称"
+                                },
+                                "kind": {
+                                  "type": "string",
+                                  "description": "集合类型"
+                                },
+                                "app_type": {
+                                  "nullable": true,
+                                  "description": "应用类型"
+                                },
+                                "app_id": {
+                                  "nullable": true,
+                                  "description": "应用id"
+                                },
+                                "children_count": {
+                                  "type": "integer",
+                                  "description": "子集合数量"
+                                },
+                                "symbol_name": {
+                                  "type": "string",
+                                  "description": ""
+                                },
+                                "created_at": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "description": "创建时间"
+                                },
+                                "updated_at": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "description": "更新时间"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "links": {
+                        "$ref": "#/components/schemas/PaginationLinks"
+                      },
+                      "meta": {
+                        "$ref": "#/components/schemas/PaginationMeta"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/kb/spaces/{space_id}/articles": {
+        "parameters": [
+          {
+            "name": "space_id",
+            "in": "path",
+            "required": true,
+            "description": "知识库id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "get": {
+          "tags": ["知识库文章"],
+          "summary": "文章列表",
+          "parameters": [
+            {
+              "name": "parent_id",
+              "in": "query",
+              "required": false,
+              "description": "父文章id",
+              "example": "489",
+              "schema": {
+                "type": "integer"
+              }
+            },
+            {
+              "name": "keywords",
+              "in": "query",
+              "required": false,
+              "description": "搜索关键字",
+              "example": "管理成员",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "page[number]",
+              "in": "query",
+              "required": false,
+              "description": "需要显示的页码, 默认1",
+              "example": "1",
+              "schema": {
+                "type": "integer"
+              }
+            },
+            {
+              "name": "page[size]",
+              "in": "query",
+              "required": false,
+              "description": "每页显示数量, 默认10, 最大不能超过50",
+              "example": "5",
+              "schema": {
+                "type": "integer"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "文章列表",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "utc-millisec"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "attributes": {
+                              "type": "object",
+                              "properties": {
+                                "title": {
+                                  "type": "string",
+                                  "description": "标题"
+                                },
+                                "position": {
+                                  "type": "integer",
+                                  "description": "位置"
+                                },
+                                "parent_id": {
+                                  "type": "integer",
+                                  "description": "父文章id"
+                                },
+                                "search_highlight": {
+                                  "type": "string",
+                                  "description": "搜索高亮"
+                                },
+                                "visits_count": {
+                                  "type": "integer",
+                                  "description": "访问量"
+                                },
+                                "children_count": {
+                                  "type": "integer",
+                                  "description": "子文章数量"
+                                },
+                                "created_at": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "description": "创建时间"
+                                },
+                                "updated_at": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "description": "更新时间"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "links": {
+                        "$ref": "#/components/schemas/PaginationLinks"
+                      },
+                      "meta": {
+                        "$ref": "#/components/schemas/PaginationMeta"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": ["知识库文章"],
+          "summary": "文章添加",
+          "parameters": [],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "attributes": {
+                          "type": "object",
+                          "properties": {
+                            "title": {
+                              "type": "string",
+                              "description": "标题",
+                              "example": "create"
+                            },
+                            "position": {
+                              "type": "string",
+                              "description": "排序值（非必填）",
+                              "example": "3"
+                            },
+                            "parent_id": {
+                              "type": "string",
+                              "description": "父页面 ID（非必填）",
+                              "example": "489"
+                            },
+                            "body": {
+                              "type": "string",
+                              "description": "文章内容（非必填）",
+                              "example": "vvvv"
+                            }
+                          },
+                          "required": ["title"]
+                        }
+                      },
+                      "required": ["attributes"]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/kb/spaces/{space_id}/articles/{article_id}": {
+        "parameters": [
+          {
+            "name": "space_id",
+            "in": "path",
+            "required": true,
+            "description": "知识库id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "article_id",
+            "in": "path",
+            "required": true,
+            "description": "文章id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "get": {
+          "tags": ["知识库文章"],
+          "summary": "文章详情",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "文章详情",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "utc-millisec"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "attributes": {
+                            "type": "object",
+                            "properties": {
+                              "icon": {
+                                "nullable": true,
+                                "description": "图标"
+                              },
+                              "title": {
+                                "type": "string",
+                                "description": "标题"
+                              },
+                              "position": {
+                                "type": "integer",
+                                "description": "位置"
+                              },
+                              "parent_id": {
+                                "type": "integer",
+                                "description": "父文章id"
+                              },
+                              "body": {
+                                "type": "string",
+                                "description": "内容"
+                              },
+                              "visits_count": {
+                                "type": "integer",
+                                "description": "访问量"
+                              },
+                              "children_count": {
+                                "type": "integer",
+                                "description": "子文章数量"
+                              },
+                              "edited_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "编辑时间"
+                              },
+                              "edited_by_id": {
+                                "type": "integer",
+                                "description": "编辑者id"
+                              },
+                              "created_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "创建时间"
+                              },
+                              "created_by_id": {
+                                "type": "integer",
+                                "description": "创建者id"
+                              },
+                              "updated_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "更新时间"
+                              },
+                              "url": {
+                                "type": "string",
+                                "format": "uri",
+                                "description": "url"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "patch": {
+          "tags": ["知识库文章"],
+          "summary": "文章更新",
+          "parameters": [],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": ["知识库文章"],
+          "summary": "文章删除",
+          "parameters": [],
+          "responses": {}
+        }
+      },
+      "/kb/spaces": {
+        "parameters": [],
+        "get": {
+          "tags": ["知识库"],
+          "summary": "知识库/列表",
+          "parameters": [
+            {
+              "name": "page[number]",
+              "in": "query",
+              "required": false,
+              "description": "需要显示的页码, 默认1",
+              "example": "1",
+              "schema": {
+                "type": "integer"
+              }
+            },
+            {
+              "name": "page[size]",
+              "in": "query",
+              "required": false,
+              "description": "每页显示数量, 默认10, 最大不能超过50",
+              "example": "10",
+              "schema": {
+                "type": "integer"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "知识库/列表",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "utc-millisec"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "attributes": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "format": "color",
+                                  "description": "名称"
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "描述"
+                                },
+                                "articles_count": {
+                                  "type": "integer",
+                                  "description": "文章数量"
+                                },
+                                "created_at": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "description": "创建时间"
+                                },
+                                "created_by_id": {
+                                  "type": "integer",
+                                  "description": "创建者id"
+                                },
+                                "updated_at": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "description": "更新时间"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "links": {
+                        "$ref": "#/components/schemas/PaginationLinks"
+                      },
+                      "meta": {
+                        "$ref": "#/components/schemas/PaginationMeta"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": ["知识库"],
+          "summary": "知识库/添加",
+          "parameters": [],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/kb/spaces/{space_id}": {
+        "parameters": [
+          {
+            "name": "space_id",
+            "in": "path",
+            "required": true,
+            "description": "知识库空间id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "get": {
+          "tags": ["知识库"],
+          "summary": "知识库/查看",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "知识库/查看",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "color"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "attributes": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "description": "名称"
+                              },
+                              "description": {
+                                "type": "string",
+                                "description": "描述"
+                              },
+                              "articles_count": {
+                                "type": "integer",
+                                "description": "文章数量"
+                              },
+                              "created_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "创建时间"
+                              },
+                              "created_by_id": {
+                                "type": "integer",
+                                "description": "创建者id"
+                              },
+                              "updated_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "更新时间"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "patch": {
+          "tags": ["知识库"],
+          "summary": "知识库/更新",
+          "parameters": [],
+          "responses": {},
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": ["知识库"],
+          "summary": "知识库/删除",
+          "parameters": [],
+          "responses": {}
+        }
+      }
+    }
+  }

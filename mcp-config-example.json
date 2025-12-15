@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "baklib-mcp-server": {
+      "type": "command",
+      "command": "node",
+      "args": [
+        "/path/to/baklib-mcp-server/index.js"
+      ],
+      "env": {
+        "BAKLIB_TOKEN": "your-api-token-here",
+        "BAKLIB_API_BASE": "https://open.baklib.com/api/v1"
+      }
+    }
+  }
+}
+
