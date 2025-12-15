@@ -3,7 +3,7 @@
 ## 📦 包信息
 
 - **包名**: `@baklib/baklib-mcp-server`
-- **当前版本**: `0.0.1`
+- **当前版本**: `0.0.4`
 - **作用域**: `@baklib` (需要 npm 账号有该作用域的发布权限)
 
 ## 🔑 前置条件
@@ -34,6 +34,17 @@ npm login
 
 ## 📝 发布步骤
 
+### 步骤 0: 本地测试（必须）
+
+**⚠️ 重要**：发布前必须进行本地测试，确保包可以正常工作。
+
+```bash
+# 运行完整测试
+./test-local.sh
+```
+
+测试通过后，才能继续发布。如果测试失败，请修复问题后再发布。
+
 ### 步骤 1: 检查配置
 
 确保 `package.json` 中的信息正确：
@@ -41,7 +52,7 @@ npm login
 ```json
 {
   "name": "@baklib/baklib-mcp-server",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "description": "...",
   "author": "Baklib",
   "license": "MIT"
@@ -67,7 +78,7 @@ npm pack
 这会创建一个 `.tgz` 文件，你可以解压查看内容：
 
 ```bash
-tar -xzf @baklib-baklib-mcp-server-0.0.1.tgz
+tar -xzf @baklib-baklib-mcp-server-0.0.4.tgz
 cd package
 ls -la
 ```
@@ -120,7 +131,7 @@ https://www.npmjs.com/package/@baklib/baklib-mcp-server
 ### 版本更新示例
 
 ```bash
-# 当前版本: 0.0.1
+# 当前版本: 0.0.4
 
 # 修复 bug
 npm version patch  # -> 0.0.2
@@ -136,14 +147,17 @@ npm version major  # -> 2.0.0
 
 发布前请确认：
 
+- [ ] **本地测试通过**：运行 `./test-local.sh` 所有测试通过 ✅（最重要）
 - [ ] `package.json` 中的信息正确（名称、版本、描述等）
-- [ ] 所有依赖都已正确声明
+- [ ] 所有依赖都已正确声明（包括 `zod`）
 - [ ] README.md 内容完整且准确
 - [ ] 代码已通过测试
 - [ ] `.npmignore` 已配置，排除不必要的文件
+- [ ] `npm pack --dry-run` 显示正确的文件
 - [ ] 已登录 npm (`npm whoami` 验证)
 - [ ] 有 `@baklib` 组织的发布权限
 - [ ] 版本号已更新（如果不是首次发布）
+- [ ] `index.js` 中的版本号已同步更新
 
 ## 🚨 常见问题
 
