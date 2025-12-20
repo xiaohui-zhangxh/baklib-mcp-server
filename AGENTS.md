@@ -99,8 +99,11 @@ baklib-mcp-server/
 
 ### Current Implementation Status
 
-- ✅ **DAM (Resource Library)**: All CRUD operations implemented
-- ✅ **KB (Knowledge Base)**: All CRUD operations implemented
+- ✅ **DAM (Resource Library)**: Core CRUD operations implemented (upload, retrieve, update, delete, list)
+- ✅ **KB (Knowledge Base)**: Article operations and knowledge base query operations implemented
+  - ✅ Article CRUD: create, retrieve, update, delete articles
+  - ✅ Knowledge base query: list and get knowledge base details
+  - ❌ Knowledge base management (create/update/delete): Not implemented due to security and management considerations
 - ✅ **Environment Variable Support**: `BAKLIB_API_BASE` for private deployments
 
 ### API Request Format
