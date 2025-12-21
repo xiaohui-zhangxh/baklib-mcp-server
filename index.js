@@ -19,9 +19,20 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 
 // Import all tools
 import { getAllToolDefinitions, getToolHandler } from './lib/tools/index.js';
+
+// Get version from package.json
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const packageJson = JSON.parse(
+  readFileSync(join(__dirname, 'package.json'), 'utf-8')
+);
+const VERSION = packageJson.version;
 
 // ============================================================================
 // MCP Server Setup
@@ -31,7 +42,7 @@ import { getAllToolDefinitions, getToolHandler } from './lib/tools/index.js';
 const server = new Server(
   {
     name: 'baklib-mcp-server',
-    version: '0.0.1',
+    version: VERSION,
   },
   {
     capabilities: {
@@ -100,7 +111,7 @@ function formatError(message, stack = null) {
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error('Baklib MCP Server started');
+  console.error(`Baklib MCP Server v${VERSION} started`);
 }
 
 main().catch((error) => {

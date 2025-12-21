@@ -39,9 +39,71 @@ BAKLIB_API_BASE=https://open.baklib.com/api/v1
 
 ### 运行
 
+#### 直接运行（命令行测试）
+
 ```bash
+# 使用环境变量运行
+BAKLIB_TOKEN=your-api-token-here npm start
+
+# 或者使用 .env 文件（推荐）
+# 在项目根目录创建 .env 文件，然后运行
 npm start
 ```
+
+#### 在 Cursor 中本地调试
+
+要在 Cursor 中调试本地开发版本，使用 `npm link` 方式：
+
+1. 在项目根目录执行：
+   ```bash
+   npm link
+   ```
+
+2. 在 Cursor 的 MCP 配置文件中添加（`~/.cursor/mcp.json` 或项目根目录的 `.cursor/mcp.json`）：
+   ```json
+   {
+     "mcpServers": {
+       "baklib-mcp-server-local": {
+         "type": "command",
+         "command": "npx",
+         "args": [
+           "-y",
+           "@baklib/baklib-mcp-server"
+         ],
+         "env": {
+           "BAKLIB_TOKEN": "your-api-token-here",
+           "BAKLIB_API_BASE": "https://open.baklib.com/api/v1"
+         }
+       }
+     }
+   }
+   ```
+
+3. 重启 Cursor 使配置生效。
+
+**取消 npm link**：
+
+如果不再需要本地链接，可以取消链接：
+
+```bash
+# 在项目根目录执行（撤销全局链接）
+npm unlink -g
+```
+
+**查看 npm link 列表**：
+
+```bash
+# 查看全局链接的包
+npm ls -g --depth=0 --link=true
+
+# 查看当前项目的链接包
+npm ls --link=true
+```
+
+**提示**：
+- 修改代码后，重新执行 `npm link` 并重启 Cursor 使更改生效
+- 确保项目已安装依赖：`npm install`
+- 确保 Node.js 版本 >= 18.0.0
 
 ## 📁 项目结构
 
@@ -194,18 +256,71 @@ node index.js 2>&1 | tee debug.log
 
 **实现进度**：4/4 接口已实现 (100%)
 
+### 站点管理（Site Management）接口
+
+| API 端点 | HTTP 方法 | 功能描述 | MCP 工具 | 状态 | 备注 |
+|---------|----------|---------|---------|------|------|
+| `/sites` | GET | 获取站点列表 | `site_list_sites` | ✅ 已实现 | |
+| `/sites/{site_id}` | GET | 获取站点详情 | `site_get_site` | ✅ 已实现 | |
+| `/sites` | POST | 创建站点 | - | ❌ 不实现 | 不在当前范围 |
+| `/sites/{site_id}` | PATCH | 更新站点 | - | ❌ 不实现 | 不在当前范围 |
+
+**实现进度**：2/4 接口已实现 (50%) - 注：仅实现查询接口，创建和更新接口不在当前范围
+
+### 用户管理（User Management）接口
+
+| API 端点 | HTTP 方法 | 功能描述 | MCP 工具 | 状态 | 备注 |
+|---------|----------|---------|---------|------|------|
+| `/users` | GET | 获取用户列表 | `user_list_users` | ✅ 已实现 | |
+| `/user` | GET | 获取当前用户信息 | `user_get_current` | ✅ 已实现 | |
+| `/users/{user_id}` | PUT | 更新用户数据 | - | ❌ 不实现 | 不在当前范围 |
+
+**实现进度**：2/3 接口已实现 (66.7%) - 注：仅实现查询接口，更新接口不在当前范围
+
+### 模板管理（Theme Management）接口
+
+| API 端点 | HTTP 方法 | 功能描述 | MCP 工具 | 状态 | 备注 |
+|---------|----------|---------|---------|------|------|
+| `/themes` | GET | 获取模板列表 | `theme_list_themes` | ✅ 已实现 | |
+
+**实现进度**：1/1 接口已实现 (100%)
+
+### 第三方功能集成（Integration Management）接口
+
+| API 端点 | HTTP 方法 | 功能描述 | MCP 工具 | 状态 | 备注 |
+|---------|----------|---------|---------|------|------|
+| `/integrations` | GET | 获取集成列表 | `integration_list_integrations` | ✅ 已实现 | |
+| `/integrations/{integration_id}` | GET | 获取集成详情 | `integration_get_integration` | ✅ 已实现 | |
+| `/integrations` | POST | 添加集成 | - | ❌ 不实现 | 不在当前范围 |
+| `/integrations/{integration_id}` | PATCH | 修改集成 | - | ❌ 不实现 | 不在当前范围 |
+| `/integrations/{integration_id}` | DELETE | 删除集成 | - | ❌ 不实现 | 不在当前范围 |
+| `/integrations/{integration_id}/enabled` | PUT | 启用集成 | - | ❌ 不实现 | 不在当前范围 |
+| `/integrations/{integration_id}/disabled` | PUT | 禁用集成 | - | ❌ 不实现 | 不在当前范围 |
+
+**实现进度**：2/7 接口已实现 (28.6%) - 注：仅实现查询接口，其他接口不在当前范围
+
+### 组织成员管理（Member Management）接口
+
+| API 端点 | HTTP 方法 | 功能描述 | MCP 工具 | 状态 | 备注 |
+|---------|----------|---------|---------|------|------|
+| `/members` | GET | 获取成员列表 | `member_list_members` | ✅ 已实现 | |
+| `/members/{member_id}` | GET | 获取成员详情 | `member_get_member` | ✅ 已实现 | |
+| `/members` | POST | 添加成员 | - | ❌ 不实现 | 不在当前范围 |
+| `/members/{member_id}` | PATCH | 更新成员 | - | ❌ 不实现 | 不在当前范围 |
+| `/members/{member_id}/enable` | PUT | 启用成员 | - | ❌ 不实现 | 不在当前范围 |
+| `/members/{member_id}/disable` | PUT | 禁用成员 | - | ❌ 不实现 | 不在当前范围 |
+
+**实现进度**：2/6 接口已实现 (33.3%) - 注：仅实现查询接口，其他接口不在当前范围
+
 ### 其他接口（不在当前 MCP Server 范围内）
 
 | API 端点 | HTTP 方法 | 功能描述 | 状态 | 备注 |
 |---------|----------|---------|------|------|
 | `/organizations/departments` | GET/POST/PATCH/DELETE | 部门管理 | ❌ 不实现 | 不在当前范围 |
-| `/users` | GET/PUT | 用户管理 | ❌ 不实现 | 不在当前范围 |
+| `/users/{user_id}` | PUT | 更新用户数据 | ❌ 不实现 | 不在当前范围 |
 | `/organizations/groups` | GET/POST/PATCH/DELETE | 团队管理 | ❌ 不实现 | 不在当前范围 |
 | `/organizations/employees` | GET/POST/PATCH/DELETE | 雇员管理 | ❌ 不实现 | 不在当前范围 |
-| `/sites` | GET/POST/PATCH | 站点管理 | ❌ 不实现 | 不在当前范围 |
-| `/themes` | GET | 模板列表 | ❌ 不实现 | 不在当前范围 |
-| `/integrations` | GET/POST/PATCH/DELETE | 第三方功能集成 | ❌ 不实现 | 不在当前范围 |
-| `/members` | GET/POST/PATCH | 组织成员管理 | ❌ 不实现 | 不在当前范围 |
+| `/sites` | POST/PATCH | 站点创建/更新 | ❌ 不实现 | 不在当前范围 |
 
 ### 接口状态说明
 
@@ -220,6 +335,11 @@ node index.js 2>&1 | tee debug.log
 - **知识库核心功能**：文章创建、查询、更新、删除，知识库列表和详情（7 个接口）
 - **站点页面管理**：页面列表、创建、查看、更新、删除（5 个接口）
 - **站点标签管理**：标签列表、创建、查看、删除（4 个接口）
+- **站点管理**：站点列表、站点详情（2 个接口）
+- **用户管理**：用户列表、当前用户信息（2 个接口）
+- **模板管理**：模板列表（1 个接口）
+- **第三方功能集成**：集成列表、集成详情（2 个接口）
+- **组织成员管理**：成员列表、成员详情（2 个接口）
 
 #### 第二阶段（计划中）⏳
 - **资源库扩展功能**（6 个接口待实现）：
@@ -230,7 +350,11 @@ node index.js 2>&1 | tee debug.log
 
 #### 不实现接口 ❌
 - **知识库管理接口**（3 个接口）：创建、更新、删除知识库 - 出于安全和管理考虑
-- **其他功能模块接口**（10 个接口）：部门管理、用户管理、团队管理、站点管理等 - 不在当前 MCP Server 范围内
+- **站点管理接口**（2 个接口）：创建、更新站点 - 不在当前范围
+- **用户管理接口**（1 个接口）：更新用户数据 - 不在当前范围
+- **第三方功能集成接口**（5 个接口）：添加、修改、删除、启用、禁用集成 - 不在当前范围
+- **组织成员管理接口**（4 个接口）：添加、更新、启用、禁用成员 - 不在当前范围
+- **其他功能模块接口**（4 个接口）：部门管理、团队管理、雇员管理等 - 不在当前 MCP Server 范围内
 
 ### 总体统计
 
@@ -244,12 +368,26 @@ node index.js 2>&1 | tee debug.log
   - ✅ 已实现：5 个
 - **站点标签（Site Tags）**：4/4 接口已实现 (100%)
   - ✅ 已实现：4 个
-- **其他模块**：0/8 接口已实现
-  - ❌ 不实现：8 个（不在当前范围）
-- **总计**：21/38 接口已实现 (55.3%)
-  - ✅ 已实现：21 个
+- **站点管理（Site Management）**：2/4 接口已实现 (50%)
+  - ✅ 已实现：2 个（查询接口）
+  - ❌ 不实现：2 个（创建、更新接口）
+- **用户管理（User Management）**：2/3 接口已实现 (66.7%)
+  - ✅ 已实现：2 个（查询接口）
+  - ❌ 不实现：1 个（更新接口）
+- **模板管理（Theme Management）**：1/1 接口已实现 (100%)
+  - ✅ 已实现：1 个
+- **第三方功能集成（Integration Management）**：2/7 接口已实现 (28.6%)
+  - ✅ 已实现：2 个（查询接口）
+  - ❌ 不实现：5 个（其他接口）
+- **组织成员管理（Member Management）**：2/6 接口已实现 (33.3%)
+  - ✅ 已实现：2 个（查询接口）
+  - ❌ 不实现：4 个（其他接口）
+- **其他模块**：0/4 接口已实现
+  - ❌ 不实现：4 个（不在当前范围）
+- **总计**：30/49 接口已实现 (61.2%)
+  - ✅ 已实现：30 个
   - ⏳ 待实现：6 个
-  - ❌ 不实现：11 个
+  - ❌ 不实现：13 个
 
 ## 🔄 开发流程
 
