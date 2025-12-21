@@ -285,20 +285,6 @@ node index.js 2>&1 | tee debug.log
 
 **实现进度**：1/1 接口已实现 (100%)
 
-### 第三方功能集成（Integration Management）接口
-
-| API 端点 | HTTP 方法 | 功能描述 | MCP 工具 | 状态 | 备注 |
-|---------|----------|---------|---------|------|------|
-| `/integrations` | GET | 获取集成列表 | `integration_list_integrations` | ✅ 已实现 | |
-| `/integrations/{integration_id}` | GET | 获取集成详情 | `integration_get_integration` | ✅ 已实现 | |
-| `/integrations` | POST | 添加集成 | - | ❌ 不实现 | 不在当前范围 |
-| `/integrations/{integration_id}` | PATCH | 修改集成 | - | ❌ 不实现 | 不在当前范围 |
-| `/integrations/{integration_id}` | DELETE | 删除集成 | - | ❌ 不实现 | 不在当前范围 |
-| `/integrations/{integration_id}/enabled` | PUT | 启用集成 | - | ❌ 不实现 | 不在当前范围 |
-| `/integrations/{integration_id}/disabled` | PUT | 禁用集成 | - | ❌ 不实现 | 不在当前范围 |
-
-**实现进度**：2/7 接口已实现 (28.6%) - 注：仅实现查询接口，其他接口不在当前范围
-
 ### 组织成员管理（Member Management）接口
 
 | API 端点 | HTTP 方法 | 功能描述 | MCP 工具 | 状态 | 备注 |
@@ -317,10 +303,12 @@ node index.js 2>&1 | tee debug.log
 | API 端点 | HTTP 方法 | 功能描述 | 状态 | 备注 |
 |---------|----------|---------|------|------|
 | `/organizations/departments` | GET/POST/PATCH/DELETE | 部门管理 | ❌ 不实现 | 不在当前范围 |
-| `/users/{user_id}` | PUT | 更新用户数据 | ❌ 不实现 | 不在当前范围 |
 | `/organizations/groups` | GET/POST/PATCH/DELETE | 团队管理 | ❌ 不实现 | 不在当前范围 |
 | `/organizations/employees` | GET/POST/PATCH/DELETE | 雇员管理 | ❌ 不实现 | 不在当前范围 |
-| `/sites` | POST/PATCH | 站点创建/更新 | ❌ 不实现 | 不在当前范围 |
+| `/organizations/position-types` | GET/POST/PATCH/DELETE | 职位类型管理 | ❌ 不实现 | 不在当前范围 |
+| `/organizations/positions` | GET/POST/PATCH/DELETE | 职位管理 | ❌ 不实现 | 不在当前范围 |
+| `/organizations/suppliers` | GET/POST/PATCH/DELETE | 供应商管理 | ❌ 不实现 | 不在当前范围 |
+| `/users/{user_id}/bindings` | GET/POST/DELETE | 用户绑定第三方账号 | ❌ 不实现 | 不在当前范围 |
 
 ### 接口状态说明
 
@@ -338,7 +326,6 @@ node index.js 2>&1 | tee debug.log
 - **站点管理**：站点列表、站点详情（2 个接口）
 - **用户管理**：用户列表、当前用户信息（2 个接口）
 - **模板管理**：模板列表（1 个接口）
-- **第三方功能集成**：集成列表、集成详情（2 个接口）
 - **组织成员管理**：成员列表、成员详情（2 个接口）
 
 #### 第二阶段（计划中）⏳
@@ -352,9 +339,9 @@ node index.js 2>&1 | tee debug.log
 - **知识库管理接口**（3 个接口）：创建、更新、删除知识库 - 出于安全和管理考虑
 - **站点管理接口**（2 个接口）：创建、更新站点 - 不在当前范围
 - **用户管理接口**（1 个接口）：更新用户数据 - 不在当前范围
-- **第三方功能集成接口**（5 个接口）：添加、修改、删除、启用、禁用集成 - 不在当前范围
+- **第三方功能集成接口**（7 个接口）：全部不实现 - 不在当前范围
 - **组织成员管理接口**（4 个接口）：添加、更新、启用、禁用成员 - 不在当前范围
-- **其他功能模块接口**（4 个接口）：部门管理、团队管理、雇员管理等 - 不在当前 MCP Server 范围内
+- **其他功能模块接口**（7 个接口）：部门管理、团队管理、雇员管理、职位类型、职位、供应商、用户绑定第三方账号等 - 不在当前 MCP Server 范围内
 
 ### 总体统计
 
@@ -376,18 +363,17 @@ node index.js 2>&1 | tee debug.log
   - ❌ 不实现：1 个（更新接口）
 - **模板管理（Theme Management）**：1/1 接口已实现 (100%)
   - ✅ 已实现：1 个
-- **第三方功能集成（Integration Management）**：2/7 接口已实现 (28.6%)
-  - ✅ 已实现：2 个（查询接口）
-  - ❌ 不实现：5 个（其他接口）
 - **组织成员管理（Member Management）**：2/6 接口已实现 (33.3%)
   - ✅ 已实现：2 个（查询接口）
   - ❌ 不实现：4 个（其他接口）
-- **其他模块**：0/4 接口已实现
-  - ❌ 不实现：4 个（不在当前范围）
-- **总计**：30/49 接口已实现 (61.2%)
-  - ✅ 已实现：30 个
+- **其他模块**：0/7 接口已实现
+  - ❌ 不实现：7 个（不在当前范围）
+- **总计**：28/51 接口已实现 (54.9%)
+  - ✅ 已实现：28 个
   - ⏳ 待实现：6 个
-  - ❌ 不实现：13 个
+  - ❌ 不实现：17 个
+
+**详细接口清单请查看 [API-STATUS.md](./API-STATUS.md)**
 
 ## 🔄 开发流程
 
