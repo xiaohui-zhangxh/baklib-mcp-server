@@ -66,7 +66,7 @@ else
 fi
 
 # 检查其他依赖
-for dep in "form-data" "dotenv" "node-fetch"; do
+for dep in "form-data" "node-fetch"; do
     if [ -d "node_modules/$dep" ]; then
         echo "✅ $dep 已安装"
     else
@@ -88,14 +88,14 @@ fi
 
 echo ""
 echo "🚀 步骤 4: 测试运行（检查环境变量错误）..."
-echo "   这应该显示 'BAKLIB_TOKEN environment variable must be set'"
+echo "   这应该显示 'BAKLIB_MCP_TOKEN' 配置缺失错误"
 echo ""
 
-# 测试运行，应该显示环境变量错误
+# 测试运行，应该显示配置缺失错误
 OUTPUT=$(node node_modules/@baklib/baklib-mcp-server/index.js 2>&1 || true)
 
-if echo "$OUTPUT" | grep -q "BAKLIB_TOKEN"; then
-    echo "✅ 代码可以运行（显示预期的环境变量错误）"
+if echo "$OUTPUT" | grep -q "BAKLIB_MCP_TOKEN"; then
+    echo "✅ 代码可以运行（显示预期的配置缺失错误）"
     echo "   输出: $(echo "$OUTPUT" | head -1)"
 elif echo "$OUTPUT" | grep -q "Cannot find module"; then
     echo "❌ 模块找不到错误："
@@ -125,7 +125,7 @@ if [ -f "node_modules/.bin/baklib-mcp-server" ]; then
     
     # 测试 bin 命令
     BIN_OUTPUT=$(node node_modules/.bin/baklib-mcp-server 2>&1 || true)
-    if echo "$BIN_OUTPUT" | grep -q "BAKLIB_TOKEN"; then
+    if echo "$BIN_OUTPUT" | grep -q "BAKLIB_MCP_TOKEN"; then
         echo "✅ bin 命令可以运行"
     else
         echo "⚠️  bin 命令输出异常："

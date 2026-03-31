@@ -5,6 +5,17 @@
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [0.2.0] - 2026-03-31
+
+### 🔧 改进
+
+- 配置读取方式统一为从命令行环境变量或 `~/.config/` 读取
+- 配置项更名为 `BAKLIB_MCP_TOKEN` 与 `BAKLIB_MCP_API_BASE`
+
+### 📚 文档更新
+
+- 更新 `README.md`、`DEVELOPER.md`、`AGENTS.md` 与示例配置，迁移到新的配置方式
+
 ## [0.1.0] - 2025-12-15
 
 ### 🎉 重大更新
@@ -86,6 +97,7 @@
 
 ---
 
+[0.2.0]: https://github.com/baklib/baklib-mcp-server/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/baklib/baklib-mcp-server/compare/v0.0.6...v0.1.0
 [0.0.6]: https://github.com/baklib/baklib-mcp-server/releases/tag/v0.0.6
 

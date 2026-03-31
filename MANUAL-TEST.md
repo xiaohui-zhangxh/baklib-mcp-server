@@ -19,7 +19,7 @@ cat package.json
 # - name: "@baklib/baklib-mcp-server"
 # - version: "0.0.4" (或当前版本)
 # - bin 字段存在且指向 "./index.js"
-# - dependencies 包含所有必需的依赖（@modelcontextprotocol/sdk, zod, form-data, dotenv, node-fetch）
+# - dependencies 包含所有必需的依赖（@modelcontextprotocol/sdk, zod, form-data, node-fetch）
 ```
 
 ## 步骤 2: 打包本地代码
@@ -77,7 +77,6 @@ ls node_modules/zod
 
 echo "检查其他依赖..."
 ls node_modules/form-data
-ls node_modules/dotenv
 ls node_modules/node-fetch
 ```
 
@@ -86,13 +85,13 @@ ls node_modules/node-fetch
 ## 步骤 6: 测试代码运行
 
 ```bash
-# 测试运行（应该显示环境变量错误，这是正常的）
+# 测试运行（未配置 token 时显示配置缺失错误，这是正常的）
 node node_modules/@baklib/baklib-mcp-server/index.js
 ```
 
 **预期输出**：
 ```
-Error: BAKLIB_TOKEN environment variable must be set
+错误：未找到 BAKLIB_MCP_TOKEN 配置。请在命令行环境变量或 ~/.config/ 中设置。
 ```
 
 **如果看到其他错误**（如 "Cannot find module"），说明依赖有问题。
@@ -109,7 +108,7 @@ ls -la node_modules/.bin/baklib-mcp-server
 node node_modules/.bin/baklib-mcp-server
 ```
 
-**预期输出**：同样显示 `Error: BAKLIB_TOKEN environment variable must be set`
+**预期输出**：同样显示 `BAKLIB_MCP_TOKEN` 配置缺失错误
 
 ## 步骤 8: 检查包信息
 
@@ -156,7 +155,7 @@ rm -rf /tmp/test-baklib-manual
 - [ ] `npm pack` 成功生成 .tgz 文件
 - [ ] `npm pack --dry-run` 只显示需要发布的文件
 - [ ] 在临时目录安装成功
-- [ ] 所有依赖都正确安装（@modelcontextprotocol/sdk, zod, form-data, dotenv, node-fetch）
+- [ ] 所有依赖都正确安装（@modelcontextprotocol/sdk, zod, form-data, node-fetch）
 - [ ] 代码可以运行（显示预期的环境变量错误）
 - [ ] bin 链接已创建
 - [ ] bin 命令可以运行

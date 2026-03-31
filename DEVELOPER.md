@@ -17,36 +17,27 @@ cd baklib-mcp-server
 npm install
 ```
 
-### 配置环境变量
+### 配置（固定优先级：ENV > `~/.config/`）
 
-创建 `.env` 文件：
+本项目通过以下优先级读取两个配置项：
 
-```env
-# 必需：Baklib API 密钥对
-BAKLIB_TOKEN=your-api-token-here
+- `BAKLIB_MCP_TOKEN`（必需）：Baklib API 密钥对，格式为 `access_key:secret_key`
+- `BAKLIB_MCP_API_BASE`（可选）：API 基础地址（默认 `https://open.baklib.com/api/v1`）
 
-# 可选：API 基础地址（私有化部署用户使用）
-# 默认为：https://open.baklib.com/api/v1
-BAKLIB_API_BASE=https://open.baklib.com/api/v1
+推荐使用个人级配置（不依赖工作目录）：
+
+```bash
+mkdir -p ~/.config
+printf "%s\n" "your-api-token-here" > ~/.config/BAKLIB_MCP_TOKEN
+printf "%s\n" "https://open.baklib.com/api/v1" > ~/.config/BAKLIB_MCP_API_BASE
 ```
-
-**环境变量说明**：
-- `BAKLIB_TOKEN`（必需）：Baklib API 密钥对，格式为 `access_key:secret_key`
-- `BAKLIB_API_BASE`（可选）：API 基础地址
-  - 默认值：`https://open.baklib.com/api/v1`
-  - 私有化部署用户可以通过此环境变量配置自己的 API 地址
-  - 例如：`https://your-private-domain.com/api/v1`
 
 ### 运行
 
 #### 直接运行（命令行测试）
 
 ```bash
-# 使用环境变量运行
-BAKLIB_TOKEN=your-api-token-here npm start
-
-# 或者使用 .env 文件（推荐）
-# 在项目根目录创建 .env 文件，然后运行
+# 已完成配置后直接运行
 npm start
 ```
 
@@ -69,15 +60,31 @@ npm start
          "args": [
            "-y",
            "@baklib/baklib-mcp-server"
-         ],
-         "env": {
-           "BAKLIB_TOKEN": "your-api-token-here",
-           "BAKLIB_API_BASE": "https://open.baklib.com/api/v1"
-         }
+         ]
        }
      }
    }
    ```
+
+**提示**：
+- Cursor 启动 MCP Server 时不保证工作目录，因此推荐用 `~/.config/BAKLIB_MCP_TOKEN` 配置。
+- 也可以在上述 MCP 配置中通过 `env` 显式注入（优先级高于 `~/.config/`），例如：
+
+```json
+{
+  "mcpServers": {
+    "baklib-mcp-server-local": {
+      "type": "command",
+      "command": "npx",
+      "args": ["-y", "@baklib/baklib-mcp-server"],
+      "env": {
+        "BAKLIB_MCP_TOKEN": "access_key:secret_key",
+        "BAKLIB_MCP_API_BASE": "https://open.baklib.com/api/v1"
+      }
+    }
+  }
+}
+```
 
 3. 重启 Cursor 使配置生效。
 
@@ -130,7 +137,6 @@ baklib-mcp-server/
 - **@modelcontextprotocol/sdk**：MCP SDK，用于实现 MCP 协议
 - **form-data**：用于创建 multipart/form-data 请求
 - **node-fetch**：用于发送 HTTP 请求
-- **dotenv**：用于加载环境变量
 
 ## 🧪 测试
 
@@ -156,7 +162,7 @@ node test-upload.js file-path
 
 ### 测试步骤
 
-1. **配置环境变量**：创建 `.env` 文件并设置 `BAKLIB_TOKEN`
+1. **配置**：`~/.config/` 中设置 `BAKLIB_MCP_TOKEN`
 2. **运行测试**：使用上述测试脚本
 3. **验证结果**：检查返回的响应和文件是否成功上传
 
@@ -174,7 +180,7 @@ node index.js 2>&1 | tee debug.log
 
 ### 常见测试问题
 
-1. **API 认证失败**：检查 `BAKLIB_TOKEN` 是否正确
+1. **API 认证失败**：检查 `BAKLIB_MCP_TOKEN` 是否正确
 2. **文件上传失败**：检查文件路径和权限
 3. **API 端点错误**：确认使用的是正确的 API 端点
 
@@ -189,12 +195,12 @@ node index.js 2>&1 | tee debug.log
 
 ### API 端点
 
-所有 API 端点基于 `BAKLIB_API_BASE` 环境变量（默认：`https://open.baklib.com/api/v1`）：
+所有 API 端点基于 `BAKLIB_MCP_API_BASE`（默认：`https://open.baklib.com/api/v1`）：
 
 - 资源库：`/dam/files`, `/dam/entities`
 - 知识库：`/kb/spaces`, `/kb/spaces/{space_id}/articles`
 
-**注意**：私有化部署用户可以通过设置 `BAKLIB_API_BASE` 环境变量来配置自己的 API 地址。
+**注意**：私有化部署用户可以通过设置 `BAKLIB_MCP_API_BASE` 来配置自己的 API 地址。
 
 ## 📋 API 接口实现状态
 
