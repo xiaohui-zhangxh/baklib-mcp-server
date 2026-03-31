@@ -15,6 +15,7 @@ mcp-config-example.json
 .env
 .env.example
 .env.local
+.config/
 
 # Logs
 *.log

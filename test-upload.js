@@ -5,16 +5,14 @@
  * This script directly tests the upload function without going through MCP
  */
 
-import dotenv from 'dotenv';
 import fs from 'fs/promises';
 import path from 'path';
 import FormData from 'form-data';
 import fetch from 'node-fetch';
+import { readBaklibMcpConfig } from './lib/config.js';
 
-// Load environment variables
-dotenv.config();
-
-const BAKLIB_TOKEN = process.env.BAKLIB_TOKEN || '';
+const config = await readBaklibMcpConfig();
+const BAKLIB_TOKEN = config.token || '';
 const BAKLIB_API_BASE = 'https://open.baklib.com';
 const API_URL = `${BAKLIB_API_BASE}/api/v1/dam/files`;
 
@@ -24,9 +22,9 @@ async function testUpload(filePath) {
     
     // Check token
     if (!BAKLIB_TOKEN) {
-      console.error('❌ Error: BAKLIB_TOKEN not set in .env file');
-      console.log('\n💡 Please create a .env file with:');
-      console.log('   BAKLIB_TOKEN=your-api-token-here\n');
+      console.error('❌ Error: BAKLIB_MCP_TOKEN not set');
+      console.log('\n💡 请在以下位置之一创建配置文件（内容为 token 本身）：');
+      console.log('   - ~/.config/BAKLIB_MCP_TOKEN\n');
       process.exit(1);
     }
 
@@ -83,7 +81,7 @@ async function testUpload(filePath) {
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${BAKLIB_TOKEN}`,
+        'Authorization': BAKLIB_TOKEN,
         ...formData.getHeaders(),
       },
       body: formData,

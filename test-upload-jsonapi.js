@@ -6,17 +6,15 @@
  * Uses multipart/form-data with JSON API parameter structure
  */
 
-import dotenv from 'dotenv';
 import fs from 'fs/promises';
 import path from 'path';
 import FormData from 'form-data';
 import fetch from 'node-fetch';
+import { readBaklibMcpConfig } from './lib/config.js';
 
-// Load environment variables
-dotenv.config();
-
-// Get token from command line argument, environment variable, or .env file
-const BAKLIB_TOKEN = process.argv[3] || process.env.BAKLIB_TOKEN || '';
+const config = await readBaklibMcpConfig();
+// Get token from command line argument, or config files
+const BAKLIB_TOKEN = process.argv[3] || config.token || '';
 const BAKLIB_API_BASE = 'https://open.baklib.com';
 const API_URL = `${BAKLIB_API_BASE}/api/v1/dam/files`;
 
@@ -26,7 +24,7 @@ async function testUpload(filePath) {
     
     // Check token
     if (!BAKLIB_TOKEN) {
-      console.error('❌ Error: BAKLIB_TOKEN not set');
+      console.error('❌ Error: BAKLIB_MCP_TOKEN not set');
       console.log('\n💡 Usage: node test-upload-jsonapi.js <file-path> [token]\n');
       process.exit(1);
     }

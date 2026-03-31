@@ -9,7 +9,7 @@ Baklib MCP Server is a Model Context Protocol (MCP) server that enables AI assis
 **Key Features**:
 - DAM operations: upload, retrieve, update, delete, and list files
 - KB operations: create, retrieve, update, delete articles, and list knowledge bases
-- Support for private deployments via `BAKLIB_API_BASE` environment variable
+- Support for private deployments via `BAKLIB_MCP_API_BASE` (loaded from `~/.config/` or ENV)
 
 ## Setup Commands
 
@@ -17,20 +17,19 @@ Baklib MCP Server is a Model Context Protocol (MCP) server that enables AI assis
 - **Start MCP server**: `npm start` or `node index.js`
 - **Check Node.js version**: Requires Node.js >= 18.0.0
 
-## Environment Configuration
+## Configuration
 
-Create a `.env` file in the project root:
+The server loads configuration with fixed precedence: command ENV > user `~/.config/`.
 
-```env
-# Required: Baklib API credentials (format: access_key:secret_key)
-BAKLIB_TOKEN=your-api-token-here
+- **Required**: `BAKLIB_MCP_TOKEN` (format: `access_key:secret_key`)
+- **Optional**: `BAKLIB_MCP_API_BASE` (default: `https://open.baklib.com/api/v1`)
 
-# Optional: API base URL (for private deployments)
-# Default: https://open.baklib.com/api/v1
-BAKLIB_API_BASE=https://open.baklib.com/api/v1
+Recommended setup:
+
+```bash
+mkdir -p ~/.config
+printf "%s\n" "your-api-token-here" > ~/.config/BAKLIB_MCP_TOKEN
 ```
-
-**Important**: Never commit `.env` files or hardcode tokens in the code. Always use environment variables.
 
 ## Development Environment Tips
 
@@ -68,7 +67,7 @@ Before committing, ensure:
 - [ ] All API endpoints work correctly
 - [ ] File uploads succeed and return correct `signed_id`
 - [ ] Error handling works for invalid tokens, missing files, etc.
-- [ ] Environment variable `BAKLIB_API_BASE` can override default API URL
+- [ ] `BAKLIB_MCP_API_BASE` can override default API URL
 - [ ] No hardcoded tokens or sensitive information in code
 
 ## Code Style
@@ -78,7 +77,7 @@ Before committing, ensure:
 - **Error Handling**: Always handle errors with try/catch and return meaningful error messages.
 - **Comments**: Add comments for complex logic, especially API request formatting.
 - **Function Naming**: Use descriptive names like `uploadFileToBaklib()`, `makeApiRequest()`.
-- **Constants**: Use `const` for configuration values (e.g., `BAKLIB_API_BASE`).
+- **Constants**: Use `const` for configuration values (e.g., `BAKLIB_MCP_API_BASE`).
 
 ## File Structure
 
@@ -104,13 +103,13 @@ baklib-mcp-server/
   - ✅ Article CRUD: create, retrieve, update, delete articles
   - ✅ Knowledge base query: list and get knowledge base details
   - ❌ Knowledge base management (create/update/delete): Not implemented due to security and management considerations
-- ✅ **Environment Variable Support**: `BAKLIB_API_BASE` for private deployments
+- ✅ **Config File Support**: `BAKLIB_MCP_API_BASE` for private deployments
 
 ### API Request Format
 
 - **File Upload**: Use JSON API format with `data[type]` and `data[attributes][file]`
 - **Authorization**: Send token directly in `Authorization` header (no `Bearer` prefix)
-- **Base URL**: Configurable via `BAKLIB_API_BASE` environment variable
+- **Base URL**: Configurable via `BAKLIB_MCP_API_BASE` (loaded from `~/.config/` or ENV)
 - **Error Handling**: Return user-friendly error messages from API responses
 
 ### Adding New Tools
@@ -126,6 +125,7 @@ When adding new MCP tools:
 
 - **Never commit**:
   - `.env` files
+  - `.config/` files (may contain tokens)
   - Real API tokens
   - User-specific paths
   - Test result files with sensitive data
@@ -206,8 +206,8 @@ npm version patch && npm publish
 
 ### Debugging API Issues
 
-1. Check `BAKLIB_TOKEN` is set correctly (format: `access_key:secret_key`)
-2. Verify `BAKLIB_API_BASE` if using private deployment
+1. Check `BAKLIB_MCP_TOKEN` is set correctly (format: `access_key:secret_key`)
+2. Verify `BAKLIB_MCP_API_BASE` if using private deployment
 3. Check API endpoint URLs match Baklib API documentation
 4. Review request format (JSON API for uploads, direct token for auth)
 5. Test with `test-all-apis.js` script for comprehensive verification

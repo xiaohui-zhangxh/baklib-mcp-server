@@ -5,22 +5,20 @@
  * Tests all DAM and KB interfaces
  */
 
-import dotenv from 'dotenv';
 import fs from 'fs/promises';
 import path from 'path';
 import FormData from 'form-data';
 import fetch from 'node-fetch';
+import { readBaklibMcpConfig } from './lib/config.js';
 
-// Load environment variables
-dotenv.config();
-
-const BAKLIB_TOKEN = process.argv[2] || process.env.BAKLIB_TOKEN || '';
-const BAKLIB_API_BASE = 'https://open.baklib.com/api/v1';
+const config = await readBaklibMcpConfig();
+const BAKLIB_TOKEN = process.argv[2] || config.token || '';
+const BAKLIB_API_BASE = config.apiBase;
 
 if (!BAKLIB_TOKEN) {
-  console.error('❌ Error: BAKLIB_TOKEN not set');
+  console.error('❌ Error: BAKLIB_MCP_TOKEN not set');
   console.log('\n💡 Usage: node test-all-apis.js [token]');
-  console.log('   Or set BAKLIB_TOKEN environment variable\n');
+  console.log('   Or configure it via ENV or ~/.config/\n');
   process.exit(1);
 }
 
