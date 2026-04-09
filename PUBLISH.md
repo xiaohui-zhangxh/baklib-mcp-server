@@ -3,7 +3,7 @@
 ## 📦 包信息
 
 - **包名**: `@baklib/baklib-mcp-server`
-- **当前版本**: `0.3.0`
+- **当前版本**: `0.4.0`
 - **作用域**: `@baklib` (需要 npm 账号有该作用域的发布权限)
 
 ## 🔑 前置条件
@@ -52,7 +52,7 @@ npm login
 ```json
 {
   "name": "@baklib/baklib-mcp-server",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "...",
   "author": "Baklib",
   "license": "MIT"

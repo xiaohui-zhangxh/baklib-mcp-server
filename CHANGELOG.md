@@ -5,6 +5,17 @@
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [0.4.0] - 2026-04-09
+
+### ✨ 新增功能
+
+- **配置**：支持 `BAKLIB_MCP_WORKSPACE`（例如 MCP `env` 中设为 `${workspaceFolder}`），从 `$WORKSPACE/.config/` 读取 `BAKLIB_MCP_TOKEN` 与 `BAKLIB_MCP_API_BASE`，优先级介于进程环境变量与 `~/.config/` 之间
+- **调试**：`BAKLIB_MCP_DEBUG=1` 时在 stderr 输出配置解析路径与来源（不输出密钥内容）；检测到未展开的 `$workspaceFolder` 占位符时给出明确提示
+
+### 📚 文档
+
+- 更新 `README.md`、`DEVELOPER.md` 与 `mcp-config-example.json` 中的配置说明与示例
+
 ## [0.3.0] - 2026-04-09
 
 ### ✨ 新增功能
@@ -111,6 +122,7 @@
 
 ---
 
+[0.4.0]: https://github.com/baklib/baklib-mcp-server/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/baklib/baklib-mcp-server/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/baklib/baklib-mcp-server/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/baklib/baklib-mcp-server/compare/v0.0.6...v0.1.0

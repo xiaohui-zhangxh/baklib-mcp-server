@@ -17,12 +17,13 @@ cd baklib-mcp-server
 npm install
 ```
 
-### 配置（固定优先级：ENV > `~/.config/`）
+### 配置（固定优先级：ENV > `$BAKLIB_MCP_WORKSPACE/.config` > `~/.config/`）
 
 本项目通过以下优先级读取两个配置项：
 
 - `BAKLIB_MCP_TOKEN`（必需）：Baklib API 密钥对，格式为 `access_key:secret_key`
 - `BAKLIB_MCP_API_BASE`（可选）：API 基础地址（默认 `https://open.baklib.com/api/v1`）
+- `BAKLIB_MCP_WORKSPACE`（可选）：工作区根目录绝对路径；若设置，会读取该目录下 `.config/` 中的同名文件（适用于在 MCP 的 `env` 里传入 `"BAKLIB_MCP_WORKSPACE": "${workspaceFolder}"`）
 
 推荐使用个人级配置（不依赖工作目录）：
 
@@ -67,8 +68,8 @@ npm start
    ```
 
 **提示**：
-- Cursor 启动 MCP Server 时不保证工作目录，因此推荐用 `~/.config/BAKLIB_MCP_TOKEN` 配置。
-- 也可以在上述 MCP 配置中通过 `env` 显式注入（优先级高于 `~/.config/`），例如：
+- Cursor 启动 MCP Server 时不保证工作目录；可用 `~/.config/BAKLIB_MCP_TOKEN`，或在 `env` 中设置 `BAKLIB_MCP_WORKSPACE`（如 `${workspaceFolder}`）以使用项目内 `.config/`。
+- 也可在 MCP 配置中通过 `env` 直接注入密钥（优先级最高），例如：
 
 ```json
 {

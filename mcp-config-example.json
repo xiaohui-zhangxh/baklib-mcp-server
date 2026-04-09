@@ -5,7 +5,10 @@
       "command": "node",
       "args": [
         "/path/to/baklib-mcp-server/index.js"
-      ]
+      ],
+      "env": {
+        "BAKLIB_MCP_WORKSPACE": "${workspaceFolder}"
+      }
     }
   }
 }
