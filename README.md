@@ -190,6 +190,12 @@ npx ctx7 skills install /baklib-tools/skills baklib-mcp-config
 
 ## 📝 更新日志
 
+### v0.3.0 (2026-04-09)
+
+- **DAM**：`dam_get_entity` 支持 `include_signed_id`、`purpose` 查询参数，便于动态表单与富文本等场景获取 `signed_id`
+
+详细变更请查看 [CHANGELOG.md](./CHANGELOG.md)
+
 ### v0.1.0 (2025-12-15)
 
 #### 🎉 重大更新
@@ -217,5 +223,5 @@ npx ctx7 skills install /baklib-tools/skills baklib-mcp-config
 
 ---
 
-**版本**：0.2.0  
-**最后更新**：2026-03-31
+**版本**：0.3.0  
+**最后更新**：2026-04-09

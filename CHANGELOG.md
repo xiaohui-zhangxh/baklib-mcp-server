@@ -5,6 +5,20 @@
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [0.3.0] - 2026-04-09
+
+### ✨ 新增功能
+
+- **DAM**：`dam_get_entity` 支持可选查询参数 `include_signed_id`、`purpose`，用于按场景获取 `signed_id`（如动态表单 `dynamic_form`、富文本嵌入等）
+
+### 🔧 改进
+
+- 明确工具参数说明：`id` 为 DAM 实体 id（非 `signed_id`）
+
+### 📚 测试
+
+- `test-all-apis.js` 增加带 `include_signed_id` 与 `purpose` 的 DAM 实体查询用例
+
 ## [0.2.0] - 2026-03-31
 
 ### 🔧 改进
@@ -97,6 +111,7 @@
 
 ---
 
+[0.3.0]: https://github.com/baklib/baklib-mcp-server/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/baklib/baklib-mcp-server/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/baklib/baklib-mcp-server/compare/v0.0.6...v0.1.0
 [0.0.6]: https://github.com/baklib/baklib-mcp-server/releases/tag/v0.0.6

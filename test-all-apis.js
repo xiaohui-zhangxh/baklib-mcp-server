@@ -140,6 +140,15 @@ async function testDAM() {
       } else {
         logTest('dam_get_entity', false, 'No data returned');
       }
+      // Query params: include_signed_id + purpose (image_picker / video_picker / dynamic_form)
+      const withSigned = await makeApiRequest(`/dam/entities/${uploadedFileId}`, 'GET', {
+        query: { include_signed_id: 'true', purpose: 'dynamic_form' },
+      });
+      if (withSigned.data) {
+        logTest('dam_get_entity (include_signed_id + purpose)', true);
+      } else {
+        logTest('dam_get_entity (include_signed_id + purpose)', false, 'No data returned');
+      }
     } catch (error) {
       logTest('dam_get_entity', false, error.message);
     }
