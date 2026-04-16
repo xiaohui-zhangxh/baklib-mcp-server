@@ -58,9 +58,20 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
   };
 });
 
+function mcpTraceEnabled() {
+  const v = (process.env.BAKLIB_MCP_TRACE || '').trim().toLowerCase();
+  return v === '1' || v === 'true' || v === 'yes';
+}
+
 // Handle tool calls
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
+
+  if (mcpTraceEnabled()) {
+    console.error(
+      `[MCP-TRACE] tools/call name=${name} arguments=${JSON.stringify(args, null, 2)}`,
+    );
+  }
 
   try {
     const handler = getToolHandler(name);
@@ -69,8 +80,18 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     }
 
     const result = await handler(args);
+    if (mcpTraceEnabled()) {
+      const preview = JSON.stringify(result, null, 2);
+      const max = Number(process.env.BAKLIB_MCP_TRACE_MAX_CHARS || 12000);
+      console.error(
+        `[MCP-TRACE] tools/call result${preview.length > max ? ` (truncated, ${preview.length} chars)` : ''}\n${preview.length > max ? preview.slice(0, max) + '\n…' : preview}`,
+      );
+    }
     return formatResponse(result);
   } catch (error) {
+    if (mcpTraceEnabled()) {
+      console.error(`[MCP-TRACE] tools/call error: ${error.message}`);
+    }
     return formatError(error.message, error.stack);
   }
 });
@@ -112,6 +133,11 @@ async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
   console.error(`Baklib MCP Server v${VERSION} started`);
+  if (mcpTraceEnabled()) {
+    console.error(
+      '[MCP-TRACE] BAKLIB_MCP_TRACE=1 — logging tools/call args/results and HTTP bodies to stderr',
+    );
+  }
 }
 
 main().catch((error) => {
