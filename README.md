@@ -192,6 +192,15 @@ npx ctx7 skills install /baklib-tools/skills baklib-mcp-config
 
 ## 📝 更新日志
 
+### v0.5.0 (2026-04-16)
+
+- **BKE**：默认查询合并 `body_format=markdown`（`bke-api-defaults`）
+- **KB**：创建/更新文章使用 `body_type=markdown`，与 BKE 约定一致
+- **站点 / DAM**：说明与行为对齐 Markdown 读写语义；`dam_upload_entity` 返回含 `iid`
+- **调试**：`BAKLIB_MCP_TRACE` 可选请求追踪；API 客户端响应解析增强
+
+详细变更请查看 [CHANGELOG.md](./CHANGELOG.md)
+
 ### v0.4.0 (2026-04-09)
 
 - **配置**：支持 `BAKLIB_MCP_WORKSPACE`，可从项目目录下 `.config/` 读取 token（例如在 MCP 中设置 `"BAKLIB_MCP_WORKSPACE": "${workspaceFolder}"`）
@@ -232,5 +241,5 @@ npx ctx7 skills install /baklib-tools/skills baklib-mcp-config
 
 ---
 
-**版本**：0.4.0  
-**最后更新**：2026-04-09
+**版本**：0.5.0  
+**最后更新**：2026-04-16

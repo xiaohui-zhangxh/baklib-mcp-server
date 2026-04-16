@@ -87,15 +87,22 @@ if [ $MISSING_DEPS -eq 1 ]; then
 fi
 
 echo ""
-echo "🚀 步骤 4: 测试运行（检查环境变量错误）..."
-echo "   这应该显示 'BAKLIB_MCP_TOKEN' 配置缺失错误"
+echo "🚀 步骤 4: 测试运行（进程可启动）..."
+echo "   MCP 在 stdio 上运行，不会在缺少 Token 时立即退出；采集短时 stderr 应出现启动日志"
 echo ""
 
-# 测试运行，应该显示配置缺失错误
-OUTPUT=$(node node_modules/@baklib/baklib-mcp-server/index.js 2>&1 || true)
+# 短时运行：服务器会阻塞在 stdio，故后台启动后 sleep 再 kill，避免脚本挂起
+ERR_FILE="$(mktemp)"
+node node_modules/@baklib/baklib-mcp-server/index.js 2>"$ERR_FILE" &
+NODE_PID=$!
+sleep 1
+kill "$NODE_PID" 2>/dev/null || true
+wait "$NODE_PID" 2>/dev/null || true
+OUTPUT=$(cat "$ERR_FILE" 2>/dev/null || true)
+rm -f "$ERR_FILE"
 
-if echo "$OUTPUT" | grep -q "BAKLIB_MCP_TOKEN"; then
-    echo "✅ 代码可以运行（显示预期的配置缺失错误）"
+if echo "$OUTPUT" | grep -qE "Baklib MCP Server|BAKLIB_MCP_TOKEN"; then
+    echo "✅ 代码可以运行（MCP 进程启动或配置相关提示）"
     echo "   输出: $(echo "$OUTPUT" | head -1)"
 elif echo "$OUTPUT" | grep -q "Cannot find module"; then
     echo "❌ 模块找不到错误："
@@ -123,9 +130,16 @@ echo "🔧 步骤 5: 测试 bin 命令..."
 if [ -f "node_modules/.bin/baklib-mcp-server" ]; then
     echo "✅ bin 链接已创建: node_modules/.bin/baklib-mcp-server"
     
-    # 测试 bin 命令
-    BIN_OUTPUT=$(node node_modules/.bin/baklib-mcp-server 2>&1 || true)
-    if echo "$BIN_OUTPUT" | grep -q "BAKLIB_MCP_TOKEN"; then
+    # 测试 bin 命令（同样短时运行）
+    BIN_ERR="$(mktemp)"
+    node node_modules/.bin/baklib-mcp-server 2>"$BIN_ERR" &
+    BIN_PID=$!
+    sleep 1
+    kill "$BIN_PID" 2>/dev/null || true
+    wait "$BIN_PID" 2>/dev/null || true
+    BIN_OUTPUT=$(cat "$BIN_ERR" 2>/dev/null || true)
+    rm -f "$BIN_ERR"
+    if echo "$BIN_OUTPUT" | grep -qE "Baklib MCP Server|BAKLIB_MCP_TOKEN"; then
         echo "✅ bin 命令可以运行"
     else
         echo "⚠️  bin 命令输出异常："

@@ -5,6 +5,16 @@
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [0.5.0] - 2026-04-16
+
+### ✨ 新增与改进
+
+- **BKE 默认查询**：新增 `lib/bke-api-defaults.js`，统一合并 `body_format=markdown` 等默认查询参数
+- **知识库（KB）**：创建/更新文章使用 `body_type=markdown`，工具描述与 Baklib 知识引擎（BKE）约定对齐
+- **站点 / DAM**：读取类工具与说明中明确区分 Markdown 响应与写入格式
+- **`dam_upload_entity`**：工具返回中补充 `iid`
+- **API 客户端**（`lib/api-client.js`）：增强响应解析；支持环境变量 `BAKLIB_MCP_TRACE` 进行可选请求追踪
+
 ## [0.4.0] - 2026-04-09
 
 ### ✨ 新增功能
@@ -122,6 +132,7 @@
 
 ---
 
+[0.5.0]: https://github.com/baklib/baklib-mcp-server/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/baklib/baklib-mcp-server/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/baklib/baklib-mcp-server/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/baklib/baklib-mcp-server/compare/v0.1.0...v0.2.0

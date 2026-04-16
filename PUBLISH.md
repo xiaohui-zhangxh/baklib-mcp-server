@@ -3,7 +3,7 @@
 ## 📦 包信息
 
 - **包名**: `@baklib/baklib-mcp-server`
-- **当前版本**: `0.4.0`
+- **当前版本**: `0.5.0`
 - **作用域**: `@baklib` (需要 npm 账号有该作用域的发布权限)
 
 ## 🔑 前置条件
@@ -52,7 +52,7 @@ npm login
 ```json
 {
   "name": "@baklib/baklib-mcp-server",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "...",
   "author": "Baklib",
   "license": "MIT"
@@ -78,7 +78,7 @@ npm pack
 这会创建一个 `.tgz` 文件，你可以解压查看内容：
 
 ```bash
-tar -xzf @baklib-baklib-mcp-server-0.0.4.tgz
+tar -xzf baklib-baklib-mcp-server-0.5.0.tgz
 cd package
 ls -la
 ```
@@ -131,16 +131,16 @@ https://www.npmjs.com/package/@baklib/baklib-mcp-server
 ### 版本更新示例
 
 ```bash
-# 当前版本: 0.0.4
+# 当前版本: 0.5.0
 
 # 修复 bug
-npm version patch  # -> 0.0.2
+npm version patch  # -> 0.5.1
 
 # 添加新功能
-npm version minor  # -> 1.1.0
+npm version minor  # -> 0.6.0
 
 # 重大变更
-npm version major  # -> 2.0.0
+npm version major  # -> 1.0.0
 ```
 
 ## 📋 发布检查清单
