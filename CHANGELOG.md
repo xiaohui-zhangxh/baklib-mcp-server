@@ -5,6 +5,18 @@
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [0.5.2] - 2026-04-16
+
+### 🔧 改进
+
+- **依赖**：移除 `node-fetch`，改用 Node 18+ 内置 `fetch`，安装时不再出现 `npm warn deprecated node-domexception@1.0.0`（该告警来自 `node-fetch` → `fetch-blob` 依赖链）。
+
+## [0.5.1] - 2026-04-16
+
+### 🔧 修复
+
+- **本地开发 / npx**：在克隆本仓库的根目录执行 `npx -y @baklib/baklib-mcp-server@…` 时，若 `node_modules/.bin/baklib-mcp-server` 不存在，会出现 `sh: baklib-mcp-server: command not found`。新增 `postinstall` 脚本 `scripts/ensure-bin.mjs`，在 `npm install` 后补全该链接（与 Cursor 将工作区打开为本仓库时的行为一致）。
+
 ## [0.5.0] - 2026-04-16
 
 ### ✨ 新增与改进
@@ -132,6 +144,8 @@
 
 ---
 
+[0.5.2]: https://github.com/baklib/baklib-mcp-server/compare/v0.5.1...v0.5.2
+[0.5.1]: https://github.com/baklib/baklib-mcp-server/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/baklib/baklib-mcp-server/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/baklib/baklib-mcp-server/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/baklib/baklib-mcp-server/compare/v0.2.0...v0.3.0

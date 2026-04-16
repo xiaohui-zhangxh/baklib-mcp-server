@@ -9,7 +9,6 @@
 import fs from 'fs/promises';
 import path from 'path';
 import FormData from 'form-data';
-import fetch from 'node-fetch';
 import { readBaklibMcpConfig } from './lib/config.js';
 
 const config = await readBaklibMcpConfig();

@@ -19,7 +19,7 @@ cat package.json
 # - name: "@baklib/baklib-mcp-server"
 # - version: "0.0.4" (或当前版本)
 # - bin 字段存在且指向 "./index.js"
-# - dependencies 包含所有必需的依赖（@modelcontextprotocol/sdk, zod, form-data, node-fetch）
+# - dependencies 包含所有必需的依赖（@modelcontextprotocol/sdk, zod, form-data；HTTP 使用 Node 18+ 内置 fetch）
 ```
 
 ## 步骤 2: 打包本地代码
@@ -77,7 +77,7 @@ ls node_modules/zod
 
 echo "检查其他依赖..."
 ls node_modules/form-data
-ls node_modules/node-fetch
+node -e "if (typeof fetch !== 'function') process.exit(1)" && echo "fetch OK (Node 18+)"
 ```
 
 **预期结果**：所有依赖都应该存在，没有 "No such file or directory" 错误。
@@ -155,7 +155,7 @@ rm -rf /tmp/test-baklib-manual
 - [ ] `npm pack` 成功生成 .tgz 文件
 - [ ] `npm pack --dry-run` 只显示需要发布的文件
 - [ ] 在临时目录安装成功
-- [ ] 所有依赖都正确安装（@modelcontextprotocol/sdk, zod, form-data, node-fetch）
+- [ ] 所有依赖都正确安装（@modelcontextprotocol/sdk, zod, form-data）
 - [ ] 代码可以运行（显示预期的环境变量错误）
 - [ ] bin 链接已创建
 - [ ] bin 命令可以运行

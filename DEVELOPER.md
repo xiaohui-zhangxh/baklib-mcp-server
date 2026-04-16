@@ -68,6 +68,7 @@ npm start
    ```
 
 **提示**：
+- 若工作区就是本仓库根目录且使用 `npx -y @baklib/baklib-mcp-server`，请先执行 `npm install`：会运行 `postinstall`（`scripts/ensure-bin.mjs`）生成 `node_modules/.bin/baklib-mcp-server`，否则可能出现 `sh: baklib-mcp-server: command not found`。
 - Cursor 启动 MCP Server 时不保证工作目录；可用 `~/.config/BAKLIB_MCP_TOKEN`，或在 `env` 中设置 `BAKLIB_MCP_WORKSPACE`（如 `${workspaceFolder}`）以使用项目内 `.config/`。
 - 也可在 MCP 配置中通过 `env` 直接注入密钥（优先级最高），例如：
 
@@ -137,7 +138,7 @@ baklib-mcp-server/
 
 - **@modelcontextprotocol/sdk**：MCP SDK，用于实现 MCP 协议
 - **form-data**：用于创建 multipart/form-data 请求
-- **node-fetch**：用于发送 HTTP 请求
+- **内置 `fetch`（Node 18+）**：HTTP 请求（不再依赖 `node-fetch`，避免 `node-domexception` 弃用告警）
 
 ## 🧪 测试
 

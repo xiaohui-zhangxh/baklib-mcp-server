@@ -66,7 +66,7 @@ else
 fi
 
 # 检查其他依赖
-for dep in "form-data" "node-fetch"; do
+for dep in "form-data"; do
     if [ -d "node_modules/$dep" ]; then
         echo "✅ $dep 已安装"
     else
