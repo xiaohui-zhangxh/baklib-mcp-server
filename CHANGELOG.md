@@ -5,6 +5,24 @@
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [Unreleased]
+
+## [0.6.0] - 2026-05-13
+
+### ✨ 新增
+
+- **DAM**：`dam_create_fragment`、`dam_update_fragment`、`dam_create_entity_url`、`dam_create_link`、`dam_update_link`、`dam_list_collections`、`dam_get_collection_limits`
+- **站点标签**：`site_update_tag`
+- **Markdown 与资源嵌入**：`lib/dam-markdown-normalize.js`、`lib/dam-markdown-resolve.js`（含单元测试），在写入片段 / 文章 / 站点 `template_variables` 前规范化 `dam-id` 图片语法以兼容服务端 BKE
+
+### 🔧 改进
+
+- **DAM 知识片段**：`dam_create_fragment` / `dam_update_fragment` 在写入 `body` 时默认附带 JSON 属性 `body_format: markdown`，与 Baklib 片段接口对 Markdown 正文的入库约定一致
+- **知识库（KB）**：创建/更新文章在 JSON attributes 中使用 `body_format=markdown`，与 Baklib 文章接口及查询参数命名一致
+- **文档与测试**：`DEVELOPER.md`、`AGENTS.md`、`API-STATUS.md`、`README.md` 等与实现对齐；`test-all-apis.js` 扩充覆盖新增端点
+
+**工具数量**：当前在 `lib/tools/index.js` 注册 **37** 个 MCP 工具。
+
 ## [0.5.2] - 2026-04-16
 
 ### 🔧 改进
@@ -144,6 +162,7 @@
 
 ---
 
+[0.6.0]: https://github.com/baklib/baklib-mcp-server/compare/v0.5.2...v0.6.0
 [0.5.2]: https://github.com/baklib/baklib-mcp-server/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/baklib/baklib-mcp-server/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/baklib/baklib-mcp-server/compare/v0.4.0...v0.5.0

@@ -204,6 +204,22 @@ node index.js 2>&1 | tee debug.log
 
 **注意**：私有化部署用户可以通过设置 `BAKLIB_MCP_API_BASE` 来配置自己的 API 地址。
 
+## BKE Markdown 与 AI / MCP（易错点）
+
+与知识库文章不同，历史上 **DAM 知识片段** 的 `POST/PATCH /dam/fragments` 若未声明正文输入格式，会把 `body` 当作 **HTML 字符串** 交给 `FragmentValue`（`Nokogiri::HTML5.fragment`），导致 Markdown 原样进库、工作台里像「纯文本」、标题 `##` 等不被解析。**现已与文章对齐**：在 JSON:API **`attributes` 中传 `body_format: "markdown"`**（可选兼容 `body_type`）时，服务端对 `body` 执行 `FragmentValue.from_markdown` 后再保存。MCP 工具 `dam_create_fragment` / `dam_update_fragment` 在写入 `body` 时 **默认附带 `body_format: markdown`**。
+
+**DAM 图片（站点页 / 知识库 / 片段正文）**
+
+- 先 `dam_upload_entity`，在正文里引用 **组内 id**：`![说明文字](dam-id=<iid>)`，其中 `<iid>` 为上传响应里的 **`attributes.iid`**（不要用 JSON:API 的 `data.id`）。
+- **MCP 兼容性**：本仓库在调用 Baklib 写入接口前，会将上述简写（以及仅在「图片」语法下、圆括号内单独出现的 `dam-id:<数字>`）规范化为服务端 BKE 可解析的形式；并**尽量**通过 `GET /dam/entities/{id}` 将简写展开为 `![alt](资源URL "dam-id=…")`（见 `lib/dam-markdown-resolve.js`）。若解析关闭或请求失败，仍回退为 `![](<> "dam-id=…")` 占位写法。环境变量 `BAKLIB_MCP_DAM_MARKDOWN_NO_RESOLVE=1` 可跳过网络解析，仅做占位规范化。
+- 外链图在站内展示常会断链；应上传 DAM 后使用上述写法。
+
+**嵌入「知识片段」块（不是普通超链接）**
+
+- 使用 BKE **L2 注释对**（见主仓 `lib/bke_editor/kramdown/fragment.rb` 与 `spec/lib/bke_editor/kramdown/fragment_spec.rb`），例如：
+  - `<!-- bke:fragment#x1 dam-id="1376" -->` 与 `<!-- /bke:fragment#x1 -->` 配对；`dam-id` 可为片段 **iid**（数字）或 signed id。
+- **`[标题](dam-id:1376)` 只会变成普通链接**，不会嵌入片段内容；AI 技能里应明确禁止用 Markdown 链接冒充片段嵌入。
+
 ## 📋 API 接口实现状态
 
 ### 资源库（DAM）接口
@@ -215,14 +231,15 @@ node index.js 2>&1 | tee debug.log
 | `/dam/entities/{entity_id}` | GET | 获取资源详情 | `dam_get_entity` | ✅ 已实现 | |
 | `/dam/entities/{entity_id}` | DELETE | 删除资源 | `dam_delete_entity` | ✅ 已实现 | |
 | `/dam/files/{entity_id}` | PATCH | 更新文件元数据 | `dam_update_entity` | ✅ 已实现 | |
-| `/dam/entities/{entity_id}/urls` | POST | 获取带过期时间的资源 URL | - | ⏳ 待实现 | 第二阶段计划 |
-| `/dam/fragments` | POST | 添加知识片段 | - | ⏳ 待实现 | 第二阶段计划 |
-| `/dam/fragments/{entity_id}` | PATCH | 更新知识片段 | - | ⏳ 待实现 | 第二阶段计划 |
-| `/dam/links` | POST | 添加网址资源 | - | ⏳ 待实现 | 第二阶段计划 |
-| `/dam/links/{entity_id}` | PATCH | 更新网址资源 | - | ⏳ 待实现 | 第二阶段计划 |
-| `/dam/collections` | GET | 获取资源库集合列表 | - | ⏳ 待实现 | 第二阶段计划 |
+| `/dam/entities/{entity_id}/urls` | POST | 获取带过期时间的资源 URL | `dam_create_entity_url` | ✅ 已实现 | |
+| `/dam/fragments` | POST | 添加知识片段 | `dam_create_fragment` | ✅ 已实现 | `attributes.body_format=markdown` 写 Markdown 正文 |
+| `/dam/fragments/{entity_id}` | PATCH | 更新知识片段 | `dam_update_fragment` | ✅ 已实现 | 同上 |
+| `/dam/links` | POST | 添加网址资源 | `dam_create_link` | ✅ 已实现 | |
+| `/dam/links/{entity_id}` | PATCH | 更新网址资源 | `dam_update_link` | ✅ 已实现 | |
+| `/dam/collections` | GET | 获取资源库集合列表 | `dam_list_collections` | ✅ 已实现 | |
+| `/dam/collections/limits` | GET | 查询合集层级/数量限制 | `dam_get_collection_limits` | ✅ 已实现 | |
 
-**实现进度**：5/11 (45.5%)
+**实现进度**：12/12 (100%)
 
 ### 知识库（KB）接口
 
@@ -260,9 +277,10 @@ node index.js 2>&1 | tee debug.log
 | `/sites/{site_id}/tags` | GET | 获取站点标签列表 | `site_list_tags` | ✅ 已实现 | |
 | `/sites/{site_id}/tags` | POST | 创建站点标签 | `site_create_tag` | ✅ 已实现 | |
 | `/sites/{site_id}/tags/{tag_id}` | GET | 获取标签详情 | `site_get_tag` | ✅ 已实现 | |
+| `/sites/{site_id}/tags/{tag_id}` | PATCH | 更新标签 | `site_update_tag` | ✅ 已实现 | |
 | `/sites/{site_id}/tags/{tag_id}` | DELETE | 删除标签 | `site_delete_tag` | ✅ 已实现 | |
 
-**实现进度**：4/4 接口已实现 (100%)
+**实现进度**：5/5 接口已实现 (100%)
 
 ### 站点管理（Site Management）接口
 
@@ -318,6 +336,17 @@ node index.js 2>&1 | tee debug.log
 | `/organizations/suppliers` | GET/POST/PATCH/DELETE | 供应商管理 | ❌ 不实现 | 不在当前范围 |
 | `/users/{user_id}/bindings` | GET/POST/DELETE | 用户绑定第三方账号 | ❌ 不实现 | 不在当前范围 |
 
+### 本路线图明确不实现的 Open API（无 MCP 工具）
+
+| 说明 | 备注 |
+|------|------|
+| `GET /kb/spaces/{space_id}/limits` | 知识库限额查询不接入 MCP |
+| 站点页面 `smart_create`、draft、versions 等扩展接口 | 暂不规划；仅保留基础页面 CRUD |
+
+### 后续可选（未排期）
+
+- **`GET /dam/tags`** 及 DAM 标签 CRUD：与打标流程强相关时再评估 MCP 工具。
+
 ### 接口状态说明
 
 - ✅ **已实现**：功能已完成并通过测试
@@ -327,59 +356,37 @@ node index.js 2>&1 | tee debug.log
 ### 实现进度总结
 
 #### 第一阶段（已完成）✅
-- **资源库核心功能**：文件上传、查询、更新、删除（5 个接口）
+- **资源库（DAM）**：文件与实体 CRUD、临时 URL、知识片段、网址链接、合集列表与限额（12 个接口，对应 12 个 MCP 工具）
 - **知识库核心功能**：文章创建、查询、更新、删除，知识库列表和详情（7 个接口）
 - **站点页面管理**：页面列表、创建、查看、更新、删除（5 个接口）
-- **站点标签管理**：标签列表、创建、查看、删除（4 个接口）
+- **站点标签管理**：标签列表、创建、查看、更新、删除（5 个接口）
 - **站点管理**：站点列表、站点详情（2 个接口）
 - **用户管理**：用户列表、当前用户信息（2 个接口）
 - **模板管理**：模板列表（1 个接口）
 - **组织成员管理**：成员列表、成员详情（2 个接口）
 
-#### 第二阶段（计划中）⏳
-- **资源库扩展功能**（6 个接口待实现）：
-  - 获取带过期时间的资源 URL
-  - 知识片段管理（创建、更新）
-  - 网址资源管理（创建、更新）
-  - 资源库集合管理
+**MCP 工具总数**：36（以 [`lib/tools/index.js`](lib/tools/index.js) 注册为准）
 
 #### 不实现接口 ❌
 - **知识库管理接口**（3 个接口）：创建、更新、删除知识库 - 出于安全和管理考虑
 - **站点管理接口**（2 个接口）：创建、更新站点 - 不在当前范围
 - **用户管理接口**（1 个接口）：更新用户数据 - 不在当前范围
-- **第三方功能集成接口**（7 个接口）：全部不实现 - 不在当前范围
 - **组织成员管理接口**（4 个接口）：添加、更新、启用、禁用成员 - 不在当前范围
 - **其他功能模块接口**（7 个接口）：部门管理、团队管理、雇员管理、职位类型、职位、供应商、用户绑定第三方账号等 - 不在当前 MCP Server 范围内
+- **明确排除**：`GET /kb/spaces/{space_id}/limits`；站点页面 `smart_create` / draft / versions 等（见上表）
 
-### 总体统计
+### 总体统计（Open API 对照表口径）
 
-- **资源库（DAM）**：5/11 接口已实现 (45.5%)
-  - ✅ 已实现：5 个
-  - ⏳ 待实现：6 个（第二阶段计划）
-- **知识库（KB）**：7/10 接口已实现 (70%)
-  - ✅ 已实现：7 个
-  - ❌ 不实现：3 个（安全考虑）
+- **资源库（DAM）**：12/12 接口已实现 (100%)
+- **知识库（KB）**：7/10 接口已实现 (70%)；❌ 不实现 3 个
 - **站点页面（Site Pages）**：5/5 接口已实现 (100%)
-  - ✅ 已实现：5 个
-- **站点标签（Site Tags）**：4/4 接口已实现 (100%)
-  - ✅ 已实现：4 个
-- **站点管理（Site Management）**：2/4 接口已实现 (50%)
-  - ✅ 已实现：2 个（查询接口）
-  - ❌ 不实现：2 个（创建、更新接口）
-- **用户管理（User Management）**：2/3 接口已实现 (66.7%)
-  - ✅ 已实现：2 个（查询接口）
-  - ❌ 不实现：1 个（更新接口）
+- **站点标签（Site Tags）**：5/5 接口已实现 (100%)
+- **站点管理（Site Management）**：2/4 接口已实现 (50%)；❌ 不实现 2 个
+- **用户管理（User Management）**：2/3 接口已实现 (66.7%)；❌ 不实现 1 个
 - **模板管理（Theme Management）**：1/1 接口已实现 (100%)
-  - ✅ 已实现：1 个
-- **组织成员管理（Member Management）**：2/6 接口已实现 (33.3%)
-  - ✅ 已实现：2 个（查询接口）
-  - ❌ 不实现：4 个（其他接口）
-- **其他模块**：0/7 接口已实现
-  - ❌ 不实现：7 个（不在当前范围）
-- **总计**：28/51 接口已实现 (54.9%)
-  - ✅ 已实现：28 个
-  - ⏳ 待实现：6 个
-  - ❌ 不实现：17 个
+- **组织成员管理（Member Management）**：2/6 接口已实现 (33.3%)；❌ 不实现 4 个
+- **其他模块**：0/7 接口已实现；❌ 不实现 7 个
+- **合计**：与 [API-STATUS.md](./API-STATUS.md) 第 1–9 节一致：✅ 已实现 36 个、❌ 不实现 17 个；第 10 节「明确不纳入 MCP」路由未计入上表。
 
 **详细接口清单请查看 [API-STATUS.md](./API-STATUS.md)**
 
@@ -387,11 +394,10 @@ node index.js 2>&1 | tee debug.log
 
 ### 添加新功能
 
-1. 在 `index.js` 中实现新功能函数
-2. 在 `ListToolsRequestSchema` 中添加工具定义
-3. 在 `CallToolRequestSchema` 中添加工具处理逻辑
-4. 更新 `README.md` 添加使用说明
-5. 编写测试并验证
+1. 在 `lib/tools/` 下新增工具模块，并在 [`lib/tools/index.js`](lib/tools/index.js) 中注册（`getAllToolDefinitions` / `getToolHandler`）
+2. 根目录 `index.js` 已从上述模块聚合工具列表与分发，一般无需再改 `ListToolsRequestSchema` / `CallToolRequestSchema` 的重复定义
+3. 更新 `DEVELOPER.md`、`API-STATUS.md` 与（如需要）`README.md`
+4. 在 `test-all-apis.js` 中补充或调整用例并验证
 
 ### 代码规范
 

@@ -151,8 +151,24 @@ async function testDAM() {
     } catch (error) {
       logTest('dam_get_entity', false, error.message);
     }
+
+    // Test 2b: Entity portal URL
+    try {
+      console.log('\n🔗 Test 2b: POST entity URL');
+      const urlRes = await makeApiRequest(`/dam/entities/${uploadedFileId}/urls`, 'POST', {
+        body: { expires_in: 3600 },
+      });
+      if (urlRes.url) {
+        logTest('dam_create_entity_url', true);
+      } else {
+        logTest('dam_create_entity_url', false, 'No url in response');
+      }
+    } catch (error) {
+      logTest('dam_create_entity_url', false, error.message);
+    }
   } else {
     logTest('dam_get_entity', false, 'Skipped: No file ID from upload');
+    logTest('dam_create_entity_url', false, 'Skipped: No file ID from upload');
   }
 
   // Test 3: Update file
@@ -197,6 +213,144 @@ async function testDAM() {
     logTest('dam_list_entities', false, error.message);
   }
 
+  // Test 4a: Collections list + limits
+  try {
+    console.log('\n📚 Test 4a: DAM collections');
+    const coll = await makeApiRequest('/dam/collections', 'GET', {
+      query: { 'page[number]': 1, 'page[size]': 5 },
+    });
+    if (coll.data !== undefined) {
+      logTest('dam_list_collections', true);
+    } else {
+      logTest('dam_list_collections', false, 'No data');
+    }
+    const lim = await makeApiRequest('/dam/collections/limits', 'GET');
+    if (lim.data) {
+      logTest('dam_get_collection_limits', true);
+    } else {
+      logTest('dam_get_collection_limits', false, 'No data');
+    }
+  } catch (error) {
+    logTest('dam_list_collections', false, error.message);
+    logTest('dam_get_collection_limits', false, error.message);
+  }
+
+  let fragmentId = null;
+  try {
+    console.log('\n📝 Test 4b: Create DAM knowledge fragment');
+    const fragBody = {
+      data: {
+        type: 'dam_fragments',
+        attributes: {
+          name: 'MCP API Test Fragment',
+          body: '# MCP test\n\nTemporary fragment from baklib-mcp-server test-all-apis.',
+          body_format: 'markdown',
+        },
+      },
+    };
+    const fragResult = await makeApiRequest('/dam/fragments', 'POST', {
+      body: fragBody,
+      query: { body_format: 'markdown' },
+    });
+    fragmentId = fragResult.data?.id;
+    if (fragmentId) {
+      logTest('dam_create_fragment', true, `Fragment entity id: ${fragmentId}`);
+    } else {
+      logTest('dam_create_fragment', false, 'No fragment id returned');
+    }
+  } catch (error) {
+    logTest('dam_create_fragment', false, error.message);
+  }
+
+  if (fragmentId) {
+    try {
+      console.log('\n✏️  Test 4b2: Update DAM fragment');
+      const patchBody = {
+        data: {
+          type: 'dam_entities',
+          attributes: { name: 'MCP API Test Fragment (patched)' },
+        },
+      };
+      const patchRes = await makeApiRequest(`/dam/fragments/${fragmentId}`, 'PATCH', {
+        body: patchBody,
+        query: { body_format: 'markdown' },
+      });
+      if (patchRes.data) {
+        logTest('dam_update_fragment', true);
+      } else {
+        logTest('dam_update_fragment', false, 'No data');
+      }
+    } catch (error) {
+      logTest('dam_update_fragment', false, error.message);
+    }
+  } else {
+    logTest('dam_update_fragment', false, 'Skipped: no fragment id');
+  }
+
+  let linkEntityId = null;
+  try {
+    console.log('\n🔗 Test 4d: Create DAM link');
+    const linkBody = {
+      data: {
+        type: 'dam_entities',
+        attributes: {
+          name: 'MCP Test Link',
+          url: 'https://example.com/mcp-test',
+        },
+      },
+    };
+    const linkRes = await makeApiRequest('/dam/links', 'POST', { body: linkBody });
+    linkEntityId = linkRes.data?.id;
+    if (linkEntityId) {
+      logTest('dam_create_link', true, `Link entity id: ${linkEntityId}`);
+    } else {
+      logTest('dam_create_link', false, 'No id returned');
+    }
+  } catch (error) {
+    logTest('dam_create_link', false, error.message);
+  }
+
+  if (linkEntityId) {
+    try {
+      console.log('\n✏️  Test 4e: Update DAM link');
+      const ubody = {
+        data: {
+          type: 'dam_entities',
+          attributes: { name: 'MCP Test Link Updated' },
+        },
+      };
+      const ures = await makeApiRequest(`/dam/links/${linkEntityId}`, 'PATCH', { body: ubody });
+      if (ures.data) {
+        logTest('dam_update_link', true);
+      } else {
+        logTest('dam_update_link', false, 'No data');
+      }
+    } catch (error) {
+      logTest('dam_update_link', false, error.message);
+    }
+    try {
+      await makeApiRequest(`/dam/entities/${linkEntityId}`, 'DELETE');
+      logTest('dam_delete_entity (link cleanup)', true);
+    } catch (error) {
+      logTest('dam_delete_entity (link cleanup)', false, error.message);
+    }
+  } else {
+    logTest('dam_update_link', false, 'Skipped: no link id');
+    logTest('dam_delete_entity (link cleanup)', false, 'Skipped: no link id');
+  }
+
+  if (fragmentId) {
+    try {
+      console.log('\n🗑️  Test 4c: Delete DAM fragment (cleanup)');
+      await makeApiRequest(`/dam/entities/${fragmentId}`, 'DELETE');
+      logTest('dam_delete_entity (fragment cleanup)', true);
+    } catch (error) {
+      logTest('dam_delete_entity (fragment cleanup)', false, error.message);
+    }
+  } else {
+    logTest('dam_delete_entity (fragment cleanup)', false, 'Skipped: no fragment id');
+  }
+
   // Test 5: Delete file (cleanup)
   if (uploadedFileId) {
     try {
@@ -211,6 +365,100 @@ async function testDAM() {
   }
 
   return uploadedFileId;
+}
+
+/**
+ * Test User APIs (GET /users, GET /user)
+ */
+async function testUsers() {
+  console.log('\n' + '='.repeat(60));
+  console.log('🧪 Testing User APIs');
+  console.log('='.repeat(60));
+
+  try {
+    console.log('\n👥 GET /users');
+    const result = await makeApiRequest('/users', 'GET', {
+      query: { 'page[number]': 1, 'page[size]': 5 },
+    });
+    if (result.data !== undefined) {
+      logTest('user_list_users', true);
+    } else {
+      logTest('user_list_users', false, 'No data');
+    }
+  } catch (error) {
+    logTest('user_list_users', false, error.message);
+  }
+
+  try {
+    console.log('\n👤 GET /user');
+    const result = await makeApiRequest('/user', 'GET');
+    if (result.data) {
+      logTest('user_get_current', true);
+    } else {
+      logTest('user_get_current', false, 'No data');
+    }
+  } catch (error) {
+    logTest('user_get_current', false, error.message);
+  }
+}
+
+/**
+ * Test site tag PATCH when a site and tag exist
+ */
+async function testSiteTagsUpdate() {
+  console.log('\n' + '='.repeat(60));
+  console.log('🧪 Testing Site tag update (PATCH)');
+  console.log('='.repeat(60));
+
+  let siteId = null;
+  try {
+    const sites = await makeApiRequest('/sites', 'GET', {
+      query: { 'page[number]': 1, 'page[size]': 5 },
+    });
+    if (sites.data && sites.data.length > 0) {
+      siteId = sites.data[0].id;
+    }
+  } catch {
+    /* skip */
+  }
+
+  if (!siteId) {
+    logTest('site_update_tag', false, 'Skipped: no site from /sites');
+    return;
+  }
+
+  let tagId = null;
+  try {
+    const tags = await makeApiRequest(`/sites/${siteId}/tags`, 'GET', {
+      query: { 'page[number]': 1, 'page[size]': 10 },
+    });
+    if (tags.data && tags.data.length > 0) {
+      tagId = tags.data[0].id;
+    }
+  } catch {
+    /* skip */
+  }
+
+  if (!tagId) {
+    logTest('site_update_tag', false, 'Skipped: no tags on first site');
+    return;
+  }
+
+  try {
+    const body = {
+      data: {
+        attributes: { name: `mcp-patch-${Date.now()}` },
+      },
+    };
+    const result = await makeApiRequest(`/sites/${siteId}/tags/${tagId}`, 'PATCH', { body });
+    if (result.data || result.name || result.id) {
+      logTest('site_update_tag', true);
+    } else {
+      logTest('site_update_tag', false, 'Unexpected response');
+    }
+  } catch (error) {
+    logTest('site_update_tag', false, error.message);
+  }
 }
 
 /**
@@ -376,6 +624,9 @@ async function main() {
 
     // Test KB APIs
     await testKB();
+
+    await testUsers();
+    await testSiteTagsUpdate();
 
     // Print summary
     console.log('\n' + '='.repeat(60));

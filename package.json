@@ -1,6 +1,6 @@
 {
   "name": "@baklib/baklib-mcp-server",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "description": "Baklib MCP Server - Model Context Protocol server for Baklib API integration (DAM and Knowledge Base)",
   "main": "index.js",
   "type": "module",
@@ -9,6 +9,7 @@
   },
   "scripts": {
     "start": "node index.js",
+    "test": "node --test lib/*.test.js",
     "postinstall": "node scripts/ensure-bin.mjs"
   },
   "keywords": [

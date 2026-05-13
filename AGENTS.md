@@ -7,8 +7,11 @@ This file provides context and instructions for AI coding agents working on the 
 Baklib MCP Server is a Model Context Protocol (MCP) server that enables AI assistants to interact with Baklib's Digital Asset Management (DAM) and Knowledge Base (KB) APIs.
 
 **Key Features**:
-- DAM operations: upload, retrieve, update, delete, and list files
-- KB operations: create, retrieve, update, delete articles, and list knowledge bases
+- DAM operations: file CRUD and listing, temporary signed URLs, knowledge fragments, web links, collections and collection limits (12 MCP tools; see `lib/tools/index.js`)
+- KB operations: create, retrieve, update, delete articles, and list/get knowledge bases (7 MCP tools; KB space admin and `GET /kb/spaces/.../limits` are out of scope)
+- Sites: page CRUD, tag CRUD (including tag update), site list/detail; no MCP for site create/update or page `smart_create` / draft / versions extensions
+- Users and members: list users, current user, list/get members (read-only for members)
+- Themes: list themes
 - Support for private deployments via `BAKLIB_MCP_API_BASE` (loaded from `~/.config/` or ENV)
 
 ## Setup Commands
@@ -98,12 +101,15 @@ baklib-mcp-server/
 
 ### Current Implementation Status
 
-- ✅ **DAM (Resource Library)**: Core CRUD operations implemented (upload, retrieve, update, delete, list)
-- ✅ **KB (Knowledge Base)**: Article operations and knowledge base query operations implemented
-  - ✅ Article CRUD: create, retrieve, update, delete articles
-  - ✅ Knowledge base query: list and get knowledge base details
+- ✅ **DAM (Resource Library)**: Full set aligned with [API-STATUS.md](./API-STATUS.md)—upload, list, get, update, delete entities; create fragment; update fragment; create entity URL; create/update link; list collections; get collection limits (**12 tools**).
+- ✅ **KB (Knowledge Base)**: Article CRUD and knowledge base list/detail (**7 tools**)
   - ❌ Knowledge base management (create/update/delete): Not implemented due to security and management considerations
+  - ❌ `GET /kb/spaces/{space_id}/limits`: Not exposed as an MCP tool
+- ✅ **Sites**: Page CRUD; tag CRUD including `site_update_tag`; site list/detail only (no site create/update MCP)
+  - ❌ Page extensions such as `smart_create`, draft, and versions: Not in MCP scope
+- ✅ **Users / members / themes**: `user_list_users`, `user_get_current`; member list/get; `theme_list_themes`
 - ✅ **Config File Support**: `BAKLIB_MCP_API_BASE` for private deployments
+- **Tool count**: **37** tools registered in [`lib/tools/index.js`](lib/tools/index.js); keep [API-STATUS.md](./API-STATUS.md) and this section in sync when adding tools
 
 ### API Request Format
 
@@ -115,11 +121,10 @@ baklib-mcp-server/
 ### Adding New Tools
 
 When adding new MCP tools:
-1. Add tool definition in `ListToolsRequestSchema` handler
-2. Add tool handler in `CallToolRequestSchema` handler
-3. Create corresponding API function (e.g., `kb_*()` or `dam_*()`)
-4. Update `DEVELOPER.md` with implementation status
-5. Add test cases to `test-all-apis.js`
+1. Add a module under `lib/tools/` (tool schema + `handleTool`); register it in [`lib/tools/index.js`](lib/tools/index.js) (`getAllToolDefinitions` and `getToolHandler`).
+2. `index.js` already wires `ListToolsRequestSchema` / `CallToolRequestSchema` to those exports—no duplicate definitions in the root file.
+3. Update [`DEVELOPER.md`](DEVELOPER.md) and [`API-STATUS.md`](API-STATUS.md) with implementation status.
+4. Add test cases to `test-all-apis.js` where applicable.
 
 ## Security Considerations
 
@@ -190,11 +195,9 @@ npm version patch && npm publish
 ### Adding a New API Endpoint
 
 1. Check `api.json` for endpoint specification
-2. Add API function in `index.js` (e.g., `async function newApiFunction()`)
-3. Add MCP tool definition in `ListToolsRequestSchema`
-4. Add tool handler in `CallToolRequestSchema`
-5. Add test case in `test-all-apis.js`
-6. Update `DEVELOPER.md` API implementation status table
+2. Implement the tool in `lib/tools/<name>.js` and register it in [`lib/tools/index.js`](lib/tools/index.js)
+3. Add test case in `test-all-apis.js`
+4. Update `DEVELOPER.md` and `API-STATUS.md` API implementation status tables
 
 ### Updating Version
 
